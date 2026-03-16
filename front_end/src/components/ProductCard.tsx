@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { Products } from "../types/Products";
+import { useNavigate } from "react-router-dom";
 
 const ProductCard = () => {
   const [products, setProducst] = useState<Products[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     api
@@ -15,6 +17,15 @@ const ProductCard = () => {
         console.error(err);
       });
   }, []);
+
+  const handleEditProdocuts = async (id: number): Promise<void> => {
+    navigate(`/edit/${id}`)
+  };
+
+  const handleDelete = async (id: number): Promise<void> => {
+    await api.delete(`/products/${id}`);
+    setProducst((prev) => prev.filter((product) => product.id !== id));
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 p-10">
@@ -31,10 +42,16 @@ const ProductCard = () => {
             <p className="text-sm text-gray-500">Estoque: {product.stock}</p>
 
             <div className="flex gap-2 mt-4">
-              <button className="bg-blue-500 text-white px-3 py-1 rounded">
+              <button
+                onClick={() => handleEditProdocuts(product.id)}
+                className="bg-blue-500 text-white px-3 py-1 rounded"
+              >
                 Editar
               </button>
-              <button className="bg-red-500 text-white px-3 py-1 rounded">
+              <button
+                onClick={() => handleDelete(product.id)}
+                className="bg-red-500 text-white px-3 py-1 rounded"
+              >
                 Excluir
               </button>
             </div>

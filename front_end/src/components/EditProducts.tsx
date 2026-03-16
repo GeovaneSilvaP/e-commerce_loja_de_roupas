@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const EditProducts = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [name, setName] = useState<string>("");
   const [price, setPrice] = useState<number>(0);
@@ -26,6 +27,10 @@ const EditProducts = () => {
       getProduct();
     }
   }, [id]);
+
+  const handleBack = () => {
+    navigate("/admin");
+  };
 
   const updateProduct = async (): Promise<void> => {
     const formData = new FormData();
@@ -95,6 +100,13 @@ const EditProducts = () => {
         onClick={updateProduct}
       >
         Atualizar Produto
+      </button>
+
+      <button
+        className="w-full bg-gray-400 hover:bg-gray-500 text-white py-2 rounded transition"
+        onClick={handleBack}
+      >
+        Voltar
       </button>
     </div>
   );
