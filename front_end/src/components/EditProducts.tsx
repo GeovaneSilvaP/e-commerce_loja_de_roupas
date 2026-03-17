@@ -106,7 +106,7 @@ const EditProducts = () => {
         className="w-full bg-gray-400 hover:bg-gray-500 text-white py-2 rounded transition"
         onClick={handleBack}
       >
-        Voltar
+        ← Voltar
       </button>
     </div>
   );

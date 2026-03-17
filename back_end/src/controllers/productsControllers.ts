@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { connection } from "../db/connection";
-import { QueryError, QueryResult, RowDataPacket } from "mysql2";
+import { QueryError, QueryResult } from "mysql2";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -34,20 +34,16 @@ export const createProduct = (req: Request, res: Response) => {
   const sql =
     "INSERT INTO products (name, price, description, stock, image_url) VALUES (?, ?, ?, ?, ?)";
 
-  connection.query(
-    sql,
-    [name, price, description, stock, image],
-    (err) => {
-      if (err) {
-        console.log("ERRO MYSQL:", err);
-        return res.status(500).json(err);
-      }
-
-      res.json({
-        message: "Produto criado com sucesso",
-      });
+  connection.query(sql, [name, price, description, stock, image], (err) => {
+    if (err) {
+      console.log("ERRO MYSQL:", err);
+      return res.status(500).json(err);
     }
-  );
+
+    res.json({
+      message: "Produto criado com sucesso",
+    });
+  });
 };
 
 /* ==============================
@@ -79,12 +75,14 @@ export const updateProducts = (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, price, description, stock } = req.body;
 
+  const image = req.file?.filename;
+
   const sql =
-    "UPDATE products SET name = ?, price = ?, description = ?, stock = ? WHERE id = ?";
+    "UPDATE products SET name = ?, price = ?, description = ?, stock = ?, image_url = ? WHERE id = ?";
 
   connection.query(
     sql,
-    [name, price, description, stock, id],
+    [name, price, description, stock, image, id],
     (err: QueryError | null, results: QueryResult) => {
       if (err) {
         res.status(500).json(err);
@@ -149,7 +147,6 @@ export const registerAdmin = async (req: Request, res: Response) => {
    LOGIN ADMIN
 ================================*/
 export const loginAdmin = (req: Request, res: Response) => {
-
   const { email, password } = req.body;
 
   const sql = "SELECT * FROM admins WHERE email = ?";
@@ -158,14 +155,13 @@ export const loginAdmin = (req: Request, res: Response) => {
     sql,
     [email],
     async (err: QueryError | null, result: any) => {
-
       if (err) {
         return res.status(500).json(err);
       }
 
       if (result.length === 0) {
         return res.status(401).json({
-          message: "Admin não encontrado"
+          message: "Admin não encontrado",
         });
       }
 
@@ -175,21 +171,19 @@ export const loginAdmin = (req: Request, res: Response) => {
 
       if (!validPassword) {
         return res.status(401).json({
-          message: "Senha inválida"
+          message: "Senha inválida",
         });
       }
 
       const token = jwt.sign(
         { id: admin.id },
         process.env.JWT_SECRET || "SECRET_KEY",
-        { expiresIn: "1d" }
+        { expiresIn: "1d" },
       );
 
       res.json({ token });
-
-    }
+    },
   );
-
 };
 
 /* ==============================
@@ -198,7 +192,7 @@ export const loginAdmin = (req: Request, res: Response) => {
 export const authMiddleware = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const authHeader = req.headers.authorization;
 

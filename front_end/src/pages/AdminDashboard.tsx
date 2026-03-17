@@ -21,7 +21,7 @@ const AdminDashboard = () => {
           className="bg-gray-800 text-white px-5 py-2 rounded-lg hover:bg-gray-900 transition"
           onClick={handleBack}
         >
-          Voltar
+         ← Voltar
         </button>
       </div>
 
