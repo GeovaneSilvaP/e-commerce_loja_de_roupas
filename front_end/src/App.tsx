@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 
 import Login from "./pages/Login";
 import Home from "./pages/Home";
@@ -6,6 +7,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import EditProducts from "./components/EditProducts";
 import PrivateRoute from "./routes/PrivateRoute";
 import ProductDetails from "./pages/ProductDetails";
+import Cart from "./pages/Cart";
 
 function App() {
   return (
@@ -14,6 +16,7 @@ function App() {
         {/* Página principal da loja */}
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/cart" element={<Cart />} />
 
         {/* Login do administrador */}
         <Route path="/login" element={<Login />} />
@@ -38,6 +41,8 @@ function App() {
           }
         />
       </Routes>
+      
+      <Toaster />
     </BrowserRouter>
   );
 }

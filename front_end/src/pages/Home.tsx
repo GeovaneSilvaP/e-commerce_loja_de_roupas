@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
 import { ShoppingCart, LayoutGrid, Shirt, User, Watch } from "lucide-react";
+import toast from "react-hot-toast";
+
 import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
+import { Products } from "../types/Products";
 
 //imagens
 import banner from "../assets/roupasHome.jpg";
 
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  image_url: string;
-};
-
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Products[]>([]);
+  const { addToCart } = useCart();
 
   const navigate = useNavigate();
 
@@ -27,6 +25,12 @@ export default function Home() {
   useEffect(() => {
     getProducts();
   }, []);
+
+  //Adicionar ao carrinho alert
+  const handleAddToCart = (product: Products) => {
+    addToCart(product);
+    toast.success(`${product.name} adicionado 🛒`);
+  };
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -69,7 +73,11 @@ export default function Home() {
 
           {/* CARRINHO */}
           <div className="relative cursor-pointer">
-            <ShoppingCart size={22} className="hover:text-black transition" />
+            <ShoppingCart
+              onClick={() => navigate("/cart")}
+              size={22}
+              className="hover:text-black transition"
+            />
 
             {/* BADGE (quantidade) */}
             <span className="absolute -top-2 -right-2 bg-black text-white text-xs px-1.5 py-0.5 rounded-full">
@@ -124,7 +132,10 @@ export default function Home() {
 
               <p className="text-gray-500">${product.price}</p>
 
-              <button className="mt-3 w-full bg-black text-white py-2 rounded">
+              <button
+                onClick={() => handleAddToCart(product)}
+                className="mt-3 w-full bg-black text-white py-2 rounded"
+              >
                 Adicionar ao Carrinho
               </button>
             </div>

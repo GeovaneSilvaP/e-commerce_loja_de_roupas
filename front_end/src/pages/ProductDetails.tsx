@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { api } from "../services/api";
 import { Products } from "../types/Products";
 import { useNavigate, useParams } from "react-router-dom";
 import { ShoppingCart } from "lucide-react";
+import { useCart } from "../context/CartContext";
 
 const ProductDetails = () => {
   const navigate = useNavigate();
+  const { addToCart } = useCart();
   const { id } = useParams();
 
   const [product, setProduct] = useState<Products | null>(null);
@@ -32,6 +35,12 @@ const ProductDetails = () => {
         <p className="text-gray-500 text-lg">Carregando produto...</p>
       </div>
     );
+
+  //Adicionar ao carrinho alert
+  const handleAddToCart = () => {
+    addToCart(product);
+    toast.success("Produto adicionado ao carrinho 🛒");
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -64,16 +73,18 @@ const ProductDetails = () => {
             {product.description}
           </p>
 
-          <p className="text-3xl font-bold text-black mb-4">
-            ${product.price}
-          </p>
+          <p className="text-3xl font-bold text-black mb-4">${product.price}</p>
 
           <p className="text-sm text-gray-500 mb-8">
             Estoque disponível: {product.stock}
           </p>
 
-          <button className="flex items-center justify-center gap-2 bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition">
-            Adicionar ao Carrinho<ShoppingCart size={18}/>
+          <button
+            onClick={handleAddToCart}
+            className="flex items-center justify-center gap-2 bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
+          >
+            Adicionar ao Carrinho
+            <ShoppingCart size={18} />
           </button>
         </div>
       </div>
