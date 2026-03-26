@@ -13,8 +13,11 @@ import banner from "../assets/roupasHome.jpg";
 export default function Home() {
   const [products, setProducts] = useState<Products[]>([]);
   const { addToCart } = useCart();
+  const { cart } = useCart();
 
   const navigate = useNavigate();
+
+  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   const getProducts = async () => {
     const response = await api.get("/products");
@@ -72,17 +75,16 @@ export default function Home() {
           </button>
 
           {/* CARRINHO */}
-          <div className="relative cursor-pointer">
-            <ShoppingCart
-              onClick={() => navigate("/cart")}
-              size={22}
-              className="hover:text-black transition"
-            />
-
-            {/* BADGE (quantidade) */}
-            <span className="absolute -top-2 -right-2 bg-black text-white text-xs px-1.5 py-0.5 rounded-full">
-              2
-            </span>
+          <div
+            className="relative cursor-pointer"
+            onClick={() => navigate("/cart")}
+          >
+            <ShoppingCart size={22} />
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                {totalItems}
+              </span>
+            )}
           </div>
         </div>
       </nav>
