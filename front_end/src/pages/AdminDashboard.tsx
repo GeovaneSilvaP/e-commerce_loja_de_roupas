@@ -1,45 +1,70 @@
 import CreateProducts from "../components/CreateProducts";
 import ProductsCard from "../components/ProductCard";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Package, PlusCircle } from "lucide-react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
 
-  const handleBack = () => {
-    navigate("/");
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100 p-10">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-10">
-        <h1 className="text-3xl font-bold text-gray-800">
-          Painel do Administrador
-        </h1>
+    <div className="min-h-screen bg-[#0f0f13] text-white px-6 py-10">
 
-        <button
-          className="bg-gray-800 text-white px-5 py-2 rounded-lg hover:bg-gray-900 transition"
-          onClick={handleBack}
-        >
-         ← Voltar
-        </button>
-      </div>
+      <div className="max-w-6xl mx-auto">
 
-      <div className="bg-white p-6 rounded-xl shadow mb-10">
-        <h2 className="text-xl font-semibold mb-4 text-gray-700">
-          Criar Novo Produto
-        </h2>
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-10">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight">
+              Painel <span className="text-violet-400">Admin</span>
+            </h1>
+            <p className="text-zinc-400 text-sm mt-1">
+              Gerencie seus produtos e estoque
+            </p>
+          </div>
 
-        <CreateProducts />
-      </div>
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm transition-all duration-200 active:scale-95"
+          >
+            <ArrowLeft size={16} />
+            Voltar
+          </button>
+        </div>
 
-      {/* Lista de Produtos */}
-      <div className="bg-white p-6 rounded-xl shadow">
-        <h2 className="text-xl font-semibold mb-6 text-gray-700">
-          Produtos Cadastrados
-        </h2>
+        {/* GRID */}
+        <div className="grid lg:grid-cols-3 gap-8">
 
-        <ProductsCard />
+          {/* CREATE PRODUCT */}
+          <div className="lg:col-span-1">
+            <div className="bg-[#18181f] border border-[#252530] rounded-2xl p-6 shadow-lg h-fit">
+
+              <div className="flex items-center gap-2 mb-4">
+                <PlusCircle className="text-violet-400" size={18} />
+                <h2 className="text-lg font-semibold">
+                  Novo Produto
+                </h2>
+              </div>
+
+              <CreateProducts />
+            </div>
+          </div>
+
+          {/* PRODUCT LIST */}
+          <div className="lg:col-span-2">
+            <div className="bg-[#18181f] border border-[#252530] rounded-2xl p-6 shadow-lg">
+
+              <div className="flex items-center gap-2 mb-6">
+                <Package className="text-violet-400" size={18} />
+                <h2 className="text-lg font-semibold">
+                  Produtos Cadastrados
+                </h2>
+              </div>
+
+              <ProductsCard />
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );

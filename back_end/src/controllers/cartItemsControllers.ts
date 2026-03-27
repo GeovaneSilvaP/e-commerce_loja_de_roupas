@@ -6,7 +6,15 @@ import { connection } from "../db/connection";
 
 export const addToCart = (req: Request, res: Response) => {
   const { product_id, quantity } = req.body;
-  const user_id = (req as any).admin.id;
+  const user = (req as any).admin;
+
+  console.log("USER:", user); // DEBUG
+
+  if (!user) {
+    return res.status(401).json({ message: "Usuário não autenticado" });
+  }
+
+  const user_id = user.id;
 
   const sqlCheck =
     "SELECT * FROM cart_items WHERE product_id = ? AND user_id = ?";

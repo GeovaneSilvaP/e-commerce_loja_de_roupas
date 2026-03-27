@@ -1,113 +1,159 @@
 import { useEffect, useState } from "react";
 import { api } from "../services/api";
 import { useParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, UploadCloud } from "lucide-react";
+import toast from "react-hot-toast";
 
 const EditProducts = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [name, setName] = useState<string>("");
-  const [price, setPrice] = useState<number>(0);
-  const [description, setDescription] = useState<string>("");
-  const [stock, setStock] = useState<number>(0);
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState<number | "">("");
+  const [description, setDescription] = useState("");
+  const [stock, setStock] = useState<number | "">("");
   const [image, setImage] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const getProduct = async () => {
-    const response = await api.get(`/products/${id}`);
-    const product = response.data[0];
+    try {
+      const response = await api.get(`/products/${id}`);
+      const product = response.data[0];
 
-    setName(product.name);
-    setPrice(product.price);
-    setDescription(product.description);
-    setStock(product.stock);
+      setName(product.name);
+      setPrice(product.price);
+      setDescription(product.description);
+      setStock(product.stock);
+    } catch {
+      toast.error("Erro ao carregar produto");
+    }
   };
 
   useEffect(() => {
-    if (id) {
-      getProduct();
-    }
+    if (id) getProduct();
   }, [id]);
 
-  const handleBack = () => {
-    navigate("/admin");
-  };
+  const updateProduct = async () => {
+    try {
+      setLoading(true);
 
-  const updateProduct = async (): Promise<void> => {
-    const formData = new FormData();
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("price", String(price));
+      formData.append("description", description);
+      formData.append("stock", String(stock));
 
-    formData.append("name", name);
-    formData.append("price", String(price));
-    formData.append("description", description);
-    formData.append("stock", String(stock));
+      if (image) {
+        formData.append("image", image);
+      }
 
-    if (image) {
-      formData.append("image", image);
+      await api.put(`/products/${id}`, formData);
+
+      toast.success("Produto atualizado com sucesso 🚀");
+      navigate("/admin");
+    } catch {
+      toast.error("Erro ao atualizar produto");
+    } finally {
+      setLoading(false);
     }
-
-    await api.put(`/products/${id}`, formData);
-
-    alert("Produto atualizado com sucesso 🚀");
   };
 
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded-xl shadow mt-10 space-y-4">
-      <h1 className="text-2xl font-bold text-center">Editar Produto</h1>
+    <div className="min-h-screen bg-[#0f0f13] text-white px-4 py-10">
+      <div className="max-w-md mx-auto bg-[#18181f] border border-[#252530] p-6 rounded-2xl shadow-lg space-y-4">
 
-      <input
-        type="text"
-        placeholder="Nome do produto"
-        className="w-full border p-2 rounded"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-      />
+        {/* HEADER */}
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-xl font-semibold">
+            Editar Produto
+          </h1>
 
-      <input
-        type="number"
-        placeholder="Preço"
-        className="w-full border p-2 rounded"
-        value={price}
-        onChange={(e) => setPrice(Number(e.target.value))}
-      />
+          <button
+            onClick={() => navigate("/admin")}
+            className="flex items-center gap-1 text-sm text-zinc-400 hover:text-white transition"
+          >
+            <ArrowLeft size={16} />
+            Voltar
+          </button>
+        </div>
 
-      <input
-        type="text"
-        placeholder="Descrição"
-        className="w-full border p-2 rounded"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-      />
+        {/* INPUTS */}
+        <div>
+          <label className="text-xs text-zinc-400">Nome</label>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full mt-1 bg-[#111118] border border-[#252530] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 p-3 rounded-xl text-sm outline-none transition"
+          />
+        </div>
 
-      <input
-        type="number"
-        placeholder="Quantidade em estoque"
-        className="w-full border p-2 rounded"
-        value={stock}
-        onChange={(e) => setStock(Number(e.target.value))}
-      />
+        <div>
+          <label className="text-xs text-zinc-400">Preço</label>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            className="w-full mt-1 bg-[#111118] border border-[#252530] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 p-3 rounded-xl text-sm outline-none transition"
+          />
+        </div>
 
-      <input
-        type="file"
-        className="w-full"
-        onChange={(e) => {
-          if (e.target.files) {
-            setImage(e.target.files[0]);
-          }
-        }}
-      />
+        <div>
+          <label className="text-xs text-zinc-400">Descrição</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full mt-1 bg-[#111118] border border-[#252530] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 p-3 rounded-xl text-sm outline-none transition resize-none"
+          />
+        </div>
 
-      <button
-        className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded transition"
-        onClick={updateProduct}
-      >
-        Atualizar Produto
-      </button>
+        <div>
+          <label className="text-xs text-zinc-400">Estoque</label>
+          <input
+            type="number"
+            value={stock}
+            onChange={(e) => setStock(Number(e.target.value))}
+            className="w-full mt-1 bg-[#111118] border border-[#252530] focus:border-violet-500 focus:ring-1 focus:ring-violet-500 p-3 rounded-xl text-sm outline-none transition"
+          />
+        </div>
 
-      <button
-        className="w-full bg-gray-400 hover:bg-gray-500 text-white py-2 rounded transition"
-        onClick={handleBack}
-      >
-        ← Voltar
-      </button>
+        {/* UPLOAD */}
+        <div>
+          <label className="text-xs text-zinc-400 block mb-2">
+            Nova imagem (opcional)
+          </label>
+
+          <label className="flex flex-col items-center justify-center gap-2 cursor-pointer border-2 border-dashed border-[#252530] hover:border-violet-500 bg-[#111118] p-6 rounded-xl transition">
+            <UploadCloud size={22} className="text-zinc-400" />
+            <span className="text-sm text-zinc-400">
+              Clique para trocar imagem
+            </span>
+
+            <input
+              type="file"
+              className="hidden"
+              onChange={(e) =>
+                setImage(e.target.files?.[0] || null)
+              }
+            />
+          </label>
+
+          {image && (
+            <img
+              src={URL.createObjectURL(image)}
+              className="w-full h-40 object-cover rounded-xl mt-3 border border-[#252530]"
+            />
+          )}
+        </div>
+
+        {/* BUTTON */}
+        <button
+          onClick={updateProduct}
+          disabled={loading}
+          className="w-full bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 shadow-lg shadow-violet-500/20 disabled:opacity-50"
+        >
+          {loading ? "Atualizando..." : "Salvar alterações"}
+        </button>
+      </div>
     </div>
   );
 };

@@ -12,16 +12,6 @@ import {
   updateProducts,
 } from "../controllers/productsControllers";
 
-import { loginAdmin, registerAdmin } from "../controllers/loginControllers";
-
-import {
-  addToCart,
-  decreaseCart,
-  getCart,
-  increaseCart,
-  removeCartItem,
-} from "../controllers/cartItemsControllers";
-
 const router = Router();
 
 /* ==============================
@@ -42,26 +32,5 @@ router.put(
 );
 
 router.delete("/products/:id", authMiddleware, deleteProduct);
-
-/* ==============================
-   ROTAS DE ADMIN
-================================*/
-
-router.post("/admins/register", registerAdmin);
-
-router.post("/admin/login", loginAdmin);
-
-/* ==============================
-   ROTAS DE CARRINHO
-================================*/
-router.get("/cart", authMiddleware, getCart);
-
-router.post("/cart", authMiddleware, addToCart);
-
-router.put("/cart/:id/increase", authMiddleware, increaseCart);
-
-router.put("/cart/:id/decrease", authMiddleware, decreaseCart);
-
-router.delete("/cart/:id", authMiddleware, removeCartItem);
 
 export default router;

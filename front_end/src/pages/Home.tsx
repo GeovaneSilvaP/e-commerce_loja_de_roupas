@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { ShoppingCart, LayoutGrid, Shirt, User, Watch } from "lucide-react";
+import {
+  ShoppingCart,
+  LayoutGrid,
+  Shirt,
+  User,
+  Watch,
+  ClipboardList,
+  ArrowRight,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 import { api } from "../services/api";
@@ -7,106 +15,106 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { Products } from "../types/Products";
 
-//imagens
 import banner from "../assets/roupasHome.jpg";
 
 export default function Home() {
   const [products, setProducts] = useState<Products[]>([]);
-  const { addToCart } = useCart();
-  const { cart } = useCart();
-
+  const { addToCart, cart } = useCart();
   const navigate = useNavigate();
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  const getProducts = async () => {
-    const response = await api.get("/products");
-
-    setProducts(response.data);
-  };
-
   useEffect(() => {
-    getProducts();
+    api.get("/products").then((res) => setProducts(res.data));
   }, []);
 
-  //Adicionar ao carrinho alert
   const handleAddToCart = (product: Products) => {
     addToCart(product);
     toast.success(`${product.name} adicionado 🛒`);
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen">
+    <div className="bg-[#0f0f13] min-h-screen text-white">
       {/* NAVBAR */}
+      <nav className="sticky top-0 z-50 flex justify-between items-center px-10 py-4 bg-[#0f0f13]/90 backdrop-blur-md border-b border-white/5">
+        <h1 className="text-xl font-extrabold tracking-tight text-white">
+          My<span className="text-violet-400">Store</span>
+        </h1>
 
-      <nav className="flex justify-between items-center px-10 py-4 bg-white shadow">
-        <h1 className="text-xl font-bold">My Store</h1>
+        <ul className="flex gap-1 text-sm text-zinc-400">
+          {[
+            { icon: <LayoutGrid size={15} />, label: "Categorias" },
+            { icon: <Shirt size={15} />, label: "Mulheres" },
+            { icon: <User size={15} />, label: "Masculinos" },
+            { icon: <Watch size={15} />, label: "Acessórios" },
+          ].map(({ icon, label }) => (
+            <li
+              key={label}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-all duration-200"
+            >
+              {icon}
+              {label}
+            </li>
+          ))}
 
-        <ul className="flex gap-6 text-gray-600">
-          <li className="flex items-center gap-2 hover:text-black cursor-pointer">
-            <LayoutGrid size={18} />
-            Categorias
-          </li>
-
-          <li className="flex items-center gap-2 hover:text-black cursor-pointer">
-            <Shirt size={18} />
-            Mulheres
-          </li>
-
-          <li className="flex items-center gap-2 hover:text-black cursor-pointer">
-            <User size={18} />
-            Masculinos
-          </li>
-
-          <li className="flex items-center gap-2 hover:text-black cursor-pointer">
-            <Watch size={18} />
-            Acessórios
+          <li
+            onClick={() => navigate("/meus-pedidos")}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-all duration-200"
+          >
+            <ClipboardList size={15} />
+            Meus Pedidos
           </li>
         </ul>
 
-        <div className="flex items-center gap-6">
-          {/* USUÁRIO */}
+        <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/login")}
-            className="flex items-center gap-2 p-2 rounded-full hover:bg-gray-100 transition"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-200"
           >
-            <User size={20} />
-            <span className="text-sm">Login</span>
+            <User size={16} />
+            Login
           </button>
 
-          {/* CARRINHO */}
-          <div
-            className="relative cursor-pointer"
+          <button
             onClick={() => navigate("/cart")}
+            className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200"
           >
-            <ShoppingCart size={22} />
+            <ShoppingCart size={18} className="text-zinc-300" />
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+              <span className="absolute -top-1.5 -right-1.5 bg-violet-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
                 {totalItems}
               </span>
             )}
-          </div>
+          </button>
         </div>
       </nav>
 
       {/* HERO */}
+      <section className="max-w-6xl mx-auto mt-10 px-4">
+        <div className="relative bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex items-center justify-between p-10 gap-8 min-h-[280px]">
+          {/* Background glow */}
+          <div className="absolute -top-20 -left-20 w-72 h-72 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -right-10 w-60 h-60 bg-pink-600/10 rounded-full blur-3xl pointer-events-none" />
 
-      <section className="max-w-6xl mx-auto mt-10">
-        <div className="bg-gray-200 rounded-xl flex items-center justify-between p-10">
-          <div>
-            <p className="text-sm text-gray-500 mb-2">NOVA COLEÇÃO DE VERÃO</p>
-
-            <h2 className="text-4xl font-bold mb-4">Coleção de Verão</h2>
-
-            <button className="flex items-center justify-center gap-2 bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 active:scale-95 transition-all duration-200">
-              COMPRE AGORA <ShoppingCart size={18} />
+          <div className="relative z-10">
+            <p className="text-xs uppercase tracking-[0.2em] text-violet-400 mb-3 font-medium">
+              Nova Coleção de Verão
+            </p>
+            <h2 className="text-5xl font-extrabold tracking-tight leading-tight mb-6 text-white">
+              Coleção de<br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400">
+                Verão 2025
+              </span>
+            </h2>
+            <button className="flex items-center gap-2 bg-white text-black text-sm font-bold px-6 py-3 rounded-xl hover:bg-zinc-100 active:scale-95 transition-all duration-200">
+              COMPRE AGORA <ArrowRight size={16} />
             </button>
           </div>
 
-          <div className="w-1/2 h-full">
+          <div className="relative z-10 w-2/5 shrink-0">
             <img
               src={banner}
-              className="w-full h-full object-cover rounded-lg"
+              className="w-full h-56 object-cover rounded-xl shadow-2xl"
               alt="banner"
             />
           </div>
@@ -114,32 +122,62 @@ export default function Home() {
       </section>
 
       {/* PRODUCTS */}
+      <section className="max-w-6xl mx-auto mt-16 px-4 pb-20">
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-zinc-600 mb-1">
+              Seleção especial
+            </p>
+            <h2 className="text-3xl font-extrabold tracking-tight text-white">
+              Produtos em <span className="text-violet-400">Destaque</span>
+            </h2>
+          </div>
+          <button
+            onClick={() => navigate("/products")}
+            className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-violet-400 transition-colors duration-200"
+          >
+            Ver todos <ArrowRight size={14} />
+          </button>
+        </div>
 
-      <section className="max-w-6xl mx-auto mt-14">
-        <h2 className="text-2xl font-bold mb-6">Produtos em Destaque</h2>
-
-        <div className="grid grid-cols-4 gap-6">
-          {products.map((product) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {products.slice(0, 8).map((product) => (
             <div
               key={product.id}
-              className="bg-white p-4 rounded-lg shadow hover:shadow-lg transition"
+              className="group bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#3d3d55]"
             >
-              <img
+              {/* Image */}
+              <div
                 onClick={() => navigate(`/product/${product.id}`)}
-                src={`http://localhost:3000/uploads/${product.image_url}`}
-                className="h-40 mx-auto object-contain"
-              />
-
-              <h3 className="mt-4 font-medium">{product.name}</h3>
-
-              <p className="text-gray-500">${product.price}</p>
-
-              <button
-                onClick={() => handleAddToCart(product)}
-                className="mt-3 w-full bg-black text-white py-2 rounded"
+                className="relative h-44 bg-[#111118] flex items-center justify-center cursor-pointer overflow-hidden"
               >
-                Adicionar ao Carrinho
-              </button>
+                <img
+                  src={`http://localhost:3000/uploads/${product.image_url}`}
+                  alt={product.name}
+                  className="h-36 w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-violet-400/0 group-hover:bg-violet-400/5 transition-all duration-300" />
+              </div>
+
+              {/* Info */}
+              <div className="p-4 flex flex-col gap-3 flex-1">
+                <div>
+                  <h3 className="text-[#f0f0f5] font-semibold text-sm leading-snug truncate">
+                    {product.name}
+                  </h3>
+                  <p className="text-violet-400 font-bold text-base mt-1">
+                    R$ {Number(product.price).toFixed(2)}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => handleAddToCart(product)}
+                  className="mt-auto w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-violet-500/20 border border-white/10 hover:border-violet-500/40 text-white text-xs font-semibold py-2.5 rounded-xl transition-all duration-200 active:scale-95"
+                >
+                  <ShoppingCart size={13} />
+                  Adicionar ao Carrinho
+                </button>
+              </div>
             </div>
           ))}
         </div>

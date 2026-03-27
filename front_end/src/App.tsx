@@ -8,6 +8,7 @@ import EditProducts from "./components/EditProducts";
 import PrivateRoute from "./routes/PrivateRoute";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/meus-pedidos" element={<Orders />} />
 
         {/* Login do administrador */}
         <Route path="/login" element={<Login />} />
@@ -41,7 +43,7 @@ function App() {
           }
         />
       </Routes>
-      
+
       <Toaster />
     </BrowserRouter>
   );
