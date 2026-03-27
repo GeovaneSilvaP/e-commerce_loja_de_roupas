@@ -16,6 +16,8 @@ import { useCart } from "../context/CartContext";
 import { Products } from "../types/Products";
 
 import banner from "../assets/roupasHome.jpg";
+import OtherOffers from "../components/OtherOffers";
+import Footer from "../components/Footer";
 
 export default function Home() {
   const [products, setProducts] = useState<Products[]>([]);
@@ -101,7 +103,8 @@ export default function Home() {
               Nova Coleção de Verão
             </p>
             <h2 className="text-5xl font-extrabold tracking-tight leading-tight mb-6 text-white">
-              Coleção de<br />
+              Coleção de
+              <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400">
                 Verão 2025
               </span>
@@ -182,6 +185,14 @@ export default function Home() {
           ))}
         </div>
       </section>
+
+      <div>
+        <OtherOffers />
+      </div>
+
+      <div>
+        <Footer />
+      </div>
     </div>
   );
 }

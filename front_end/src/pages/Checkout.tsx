@@ -1,34 +1,25 @@
 import { useState, useEffect } from "react";
+import { ShoppingBag, ArrowLeft, QrCode, CreditCard, Barcode } from "lucide-react";
 import { CartItem } from "../types/CartItem";
 import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, QrCode, Barcode, ShoppingBag } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Checkout = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("pix");
   const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
 
   useEffect(() => {
     async function loadCart() {
-      try {
-        const response = await api.get("/cart");
-        setCart(response.data);
-      } catch {
-        toast.error("Erro ao carregar carrinho");
-      }
+      const response = await api.get("/cart");
+      setCart(response.data);
     }
-
     loadCart();
   }, []);
 
-  const total = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const formatPrice = (value: number) =>
     value.toLocaleString("pt-BR", {
@@ -39,15 +30,15 @@ const Checkout = () => {
   const handleCheckout = async () => {
     try {
       setLoading(true);
-
       await api.post("/orders", {
         payment_method: paymentMethod,
       });
 
-      toast.success("Pedido realizado com sucesso 🎉");
+      toast.success("Pedido realizado com sucesso!")
       navigate("/meus-pedidos");
     } catch {
-      toast.error("Erro ao finalizar compra");
+      alert("");
+      toast.error("Erro ao finalizar compra")
     } finally {
       setLoading(false);
     }
@@ -55,6 +46,20 @@ const Checkout = () => {
 
   return (
     <div className="bg-[#0f0f13] min-h-screen text-white px-4 py-10">
+      
+      {/* BOTÃO VOLTAR */}
+      <div className="max-w-6xl mx-auto mb-6">
+        <button
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition group active:scale-95"
+        >
+          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 group-hover:bg-violet-500/20 transition">
+            <ArrowLeft size={16} />
+          </span>
+          Voltar para loja
+        </button>
+      </div>
+
       <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-8">
 
         {/* PRODUTOS */}
@@ -81,9 +86,7 @@ const Checkout = () => {
                   </div>
 
                   <div>
-                    <p className="font-semibold text-sm">
-                      {item.name}
-                    </p>
+                    <p className="font-semibold text-sm">{item.name}</p>
                     <p className="text-xs text-zinc-400">
                       Qtd: {item.quantity}
                     </p>
@@ -100,7 +103,6 @@ const Checkout = () => {
 
         {/* RESUMO */}
         <div className="bg-[#18181f] border border-[#252530] p-6 rounded-2xl h-fit shadow-lg">
-
           <h2 className="text-lg font-semibold mb-4">
             Resumo do pedido
           </h2>
@@ -131,16 +133,8 @@ const Checkout = () => {
             <div className="space-y-2">
               {[
                 { id: "pix", label: "Pix", icon: <QrCode size={14} /> },
-                {
-                  id: "credit_card",
-                  label: "Cartão",
-                  icon: <CreditCard size={14} />,
-                },
-                {
-                  id: "boleto",
-                  label: "Boleto",
-                  icon: <Barcode size={14} />,
-                },
+                { id: "credit_card", label: "Cartão", icon: <CreditCard size={14} /> },
+                { id: "boleto", label: "Boleto", icon: <Barcode size={14} /> },
               ].map((method) => (
                 <label
                   key={method.id}
@@ -159,9 +153,7 @@ const Checkout = () => {
                     type="radio"
                     value={method.id}
                     checked={paymentMethod === method.id}
-                    onChange={(e) =>
-                      setPaymentMethod(e.target.value)
-                    }
+                    onChange={(e) => setPaymentMethod(e.target.value)}
                     className="accent-violet-500"
                   />
                 </label>
@@ -169,11 +161,10 @@ const Checkout = () => {
             </div>
           </div>
 
-          {/* BOTÃO */}
           <button
             onClick={handleCheckout}
             disabled={loading || cart.length === 0}
-            className="w-full mt-6 bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 shadow-lg shadow-violet-500/20 disabled:opacity-50"
+            className="w-full mt-6 bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-semibold transition active:scale-95 disabled:opacity-50"
           >
             {loading ? "Processando..." : "Finalizar compra"}
           </button>
