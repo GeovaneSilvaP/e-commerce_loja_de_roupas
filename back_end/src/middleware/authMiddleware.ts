@@ -19,9 +19,10 @@ export const authMiddleware = (
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "SECRET_KEY"
-    );
+    ) as any;
 
-    (req as any).admin = decoded;
+    // ✅ PADRÃO CORRETO
+    (req as any).user = decoded;
 
     next();
   } catch (error) {

@@ -27,6 +27,7 @@ export default function Orders() {
   useEffect(() => {
     async function loadOrders() {
       const response = await api.get("/orders");
+      console.log("ORDERS:", response.data);
       setOrders(response.data);
     }
     loadOrders();

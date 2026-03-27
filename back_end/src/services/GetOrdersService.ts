@@ -20,12 +20,12 @@ export class GetOrdersService {
       const items = await query(
         `SELECT oi.*, p.name, p.image_url
          FROM order_items oi
-         JOIN products p ON p.id = oi.product_id
+         LEFT JOIN products p ON p.id = oi.product_id
          WHERE oi.order_id = ?`,
         [order.id]
       );
 
-      order.items = items;
+      order.items = items || [];
     }
 
     return orders;

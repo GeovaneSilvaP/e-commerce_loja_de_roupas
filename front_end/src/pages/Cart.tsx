@@ -144,7 +144,7 @@ const Cart = () => {
                 </span>
               </div>
 
-              <button className="w-full mt-6 bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 shadow-lg shadow-violet-500/20">
+              <button onClick={()=> navigate("/checkout")} className="w-full mt-6 bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-semibold transition-all duration-200 active:scale-95 shadow-lg shadow-violet-500/20">
                 Finalizar compra
               </button>
             </div>
