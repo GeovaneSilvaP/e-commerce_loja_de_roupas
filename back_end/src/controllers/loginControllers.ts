@@ -1,28 +1,39 @@
-/* ==============================
-   REGISTRAR ADMIN
-================================*/
-import {Request, Response } from "express";
+import { Request, Response } from "express";
 import { connection } from "../db/connection";
-import { QueryError } from "mysql2";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+/* ==============================
+   REGISTER ADMIN
+================================*/
 export const registerAdmin = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email e senha obrigatórios" });
+  }
+
   const hashPassword = await bcrypt.hash(password, 10);
 
-  const sql = "INSERT INTO admins (email, password) VALUES (?, ?)";
+  connection.query(
+    "SELECT id FROM admins WHERE email = ?",
+    [email],
+    (err, result: any) => {
+      if (result.length > 0) {
+        return res.status(400).json({ message: "Admin já existe" });
+      }
 
-  connection.query(sql, [email, hashPassword], (err) => {
-    if (err) {
-      return res.status(500).json(err);
-    }
+      connection.query(
+        "INSERT INTO admins (email, password) VALUES (?, ?)",
+        [email, hashPassword],
+        (err) => {
+          if (err) return res.status(500).json({ error: err });
 
-    res.json({
-      message: "Admin criado com sucesso",
-    });
-  });
+          res.json({ message: "Admin criado com sucesso" });
+        },
+      );
+    },
+  );
 };
 
 /* ==============================
@@ -31,34 +42,26 @@ export const registerAdmin = async (req: Request, res: Response) => {
 export const loginAdmin = (req: Request, res: Response) => {
   const { email, password } = req.body;
 
-  const sql = "SELECT * FROM admins WHERE email = ?";
-
   connection.query(
-    sql,
+    "SELECT * FROM admins WHERE email = ?",
     [email],
-    async (err: QueryError | null, result: any) => {
-      if (err) {
-        return res.status(500).json(err);
-      }
+    async (err, result: any) => {
+      if (err) return res.status(500).json({ error: err });
 
-      if (result.length === 0) {
-        return res.status(401).json({
-          message: "Admin não encontrado",
-        });
+      if (!result.length) {
+        return res.status(401).json({ message: "Admin não encontrado" });
       }
 
       const admin = result[0];
 
-      const validPassword = await bcrypt.compare(password, admin.password);
+      const valid = await bcrypt.compare(password, admin.password);
 
-      if (!validPassword) {
-        return res.status(401).json({
-          message: "Senha inválida",
-        });
+      if (!valid) {
+        return res.status(401).json({ message: "Senha inválida" });
       }
 
       const token = jwt.sign(
-        { id: admin.id },
+        { id: admin.id, isAdmin: true },
         process.env.JWT_SECRET || "SECRET_KEY",
         { expiresIn: "1d" },
       );

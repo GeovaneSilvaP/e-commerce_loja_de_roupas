@@ -1,47 +1,74 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 
-import Login from "./pages/Login";
+import Auth from "./pages/Auth";
+import AdminLogin from "./pages/Login";
 import Home from "./pages/Home";
 import AdminDashboard from "./pages/AdminDashboard";
 import EditProducts from "./components/EditProducts";
 import PrivateRoute from "./routes/PrivateRoute";
+import AdminRoute from "./routes/AdminRoute";
 import ProductDetails from "./pages/ProductDetails";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Checkout from "./pages/Checkout";
+import AllProducts from "./pages/AllProducts";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Página principal da loja */}
+        {/* 🌐 PÚBLICO */}
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/meus-pedidos" element={<Orders />} />
-        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/products" element={<AllProducts />} />
+        <Route path="/login" element={<Auth />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* Login do administrador */}
-        <Route path="/login" element={<Login />} />
-
-        {/* Dashboard protegido */}
+        {/* 🔐 USUÁRIO LOGADO */}
         <Route
-          path="/admin"
+          path="/cart"
           element={
             <PrivateRoute>
-              <AdminDashboard />
+              <Cart />
             </PrivateRoute>
           }
         />
 
-        {/* Editar produto (admin) */}
+        <Route
+          path="/checkout"
+          element={
+            <PrivateRoute>
+              <Checkout />
+            </PrivateRoute>
+          }
+        />
+
+        <Route
+          path="/meus-pedidos"
+          element={
+            <PrivateRoute>
+              <Orders />
+            </PrivateRoute>
+          }
+        />
+
+        {/* 🔒 ADMIN */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+
         <Route
           path="/edit/:id"
           element={
-            <PrivateRoute>
+            <AdminRoute>
               <EditProducts />
-            </PrivateRoute>
+            </AdminRoute>
           }
         />
       </Routes>

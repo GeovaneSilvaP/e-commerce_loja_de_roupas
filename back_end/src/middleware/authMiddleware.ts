@@ -9,11 +9,13 @@ export const authMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  const authHeader = req.headers.authorization;
 
-  if (!token) {
+  if (!authHeader) {
     return res.status(401).json({ message: "Token não fornecido" });
   }
+
+  const token:any = authHeader.split(" ")[1];
 
   try {
     const decoded = jwt.verify(
@@ -21,11 +23,13 @@ export const authMiddleware = (
       process.env.JWT_SECRET || "SECRET_KEY"
     ) as any;
 
-    // ✅ PADRÃO CORRETO
-    (req as any).user = decoded;
+    // PADRÃO LIMPO
+    (req as any).user = {
+      id: decoded.id,
+    };
 
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({ message: "Token inválido" });
   }
 };

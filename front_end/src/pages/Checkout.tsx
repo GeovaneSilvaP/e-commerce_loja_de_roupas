@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { ShoppingBag, ArrowLeft, QrCode, CreditCard, Barcode } from "lucide-react";
+import {
+  ShoppingBag,
+  ArrowLeft,
+  QrCode,
+  CreditCard,
+  Barcode,
+} from "lucide-react";
 import { CartItem } from "../types/CartItem";
 import { api } from "../services/api";
 import { useNavigate } from "react-router-dom";
@@ -13,8 +19,12 @@ const Checkout = () => {
 
   useEffect(() => {
     async function loadCart() {
-      const response = await api.get("/cart");
-      setCart(response.data);
+      try {
+        const response = await api.get("/cart");
+        setCart(response.data);
+      } catch {
+        toast.error("Erro ao carregar carrinho");
+      }
     }
     loadCart();
   }, []);
@@ -28,17 +38,34 @@ const Checkout = () => {
     });
 
   const handleCheckout = async () => {
+    if (cart.length === 0) {
+      toast.error("Seu carrinho está vazio");
+      return;
+    }
+
     try {
       setLoading(true);
-      await api.post("/orders", {
+
+      const response = await api.post("/orders", {
         payment_method: paymentMethod,
       });
 
-      toast.success("Pedido realizado com sucesso!")
-      navigate("/meus-pedidos");
-    } catch {
-      alert("");
-      toast.error("Erro ao finalizar compra")
+      // 🔥 limpa carrinho na UI imediatamente
+      setCart([]);
+
+      toast.success("Pedido realizado com sucesso!");
+
+      // 🔥 leve delay pra UX melhor
+      setTimeout(() => {
+        navigate("/meus-pedidos");
+      }, 1000);
+    } catch (error: any) {
+      console.error(error);
+
+      const message =
+        error?.response?.data?.error || "Erro ao finalizar compra";
+
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -46,12 +73,11 @@ const Checkout = () => {
 
   return (
     <div className="bg-[#0f0f13] min-h-screen text-white px-4 py-10">
-      
-      {/* BOTÃO VOLTAR */}
+      {/* VOLTAR */}
       <div className="max-w-6xl mx-auto mb-6">
         <button
           onClick={() => navigate("/")}
-          className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition group active:scale-95"
+          className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition group"
         >
           <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-white/5 group-hover:bg-violet-500/20 transition">
             <ArrowLeft size={16} />
@@ -61,7 +87,6 @@ const Checkout = () => {
       </div>
 
       <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-8">
-
         {/* PRODUTOS */}
         <div className="lg:col-span-2 space-y-4">
           <h1 className="text-2xl font-extrabold flex items-center gap-2 mb-4">
@@ -70,7 +95,15 @@ const Checkout = () => {
           </h1>
 
           {cart.length === 0 ? (
-            <p className="text-zinc-400">Seu carrinho está vazio</p>
+            <div className="text-center text-zinc-400 py-20">
+              <p className="mb-3">Seu carrinho está vazio</p>
+              <button
+                onClick={() => navigate("/")}
+                className="bg-violet-500 px-4 py-2 rounded-lg"
+              >
+                Voltar para loja
+              </button>
+            </div>
           ) : (
             cart.map((item) => (
               <div
@@ -103,9 +136,7 @@ const Checkout = () => {
 
         {/* RESUMO */}
         <div className="bg-[#18181f] border border-[#252530] p-6 rounded-2xl h-fit shadow-lg">
-          <h2 className="text-lg font-semibold mb-4">
-            Resumo do pedido
-          </h2>
+          <h2 className="text-lg font-semibold mb-4">Resumo do pedido</h2>
 
           <div className="flex justify-between text-zinc-400 mb-2">
             <span>Subtotal</span>
@@ -119,21 +150,21 @@ const Checkout = () => {
 
           <div className="border-t border-white/10 pt-4 flex justify-between font-bold text-lg">
             <span>Total</span>
-            <span className="text-violet-400">
-              {formatPrice(total)}
-            </span>
+            <span className="text-violet-400">{formatPrice(total)}</span>
           </div>
 
           {/* PAGAMENTO */}
           <div className="mt-6">
-            <h3 className="text-sm text-zinc-400 mb-3">
-              Forma de pagamento
-            </h3>
+            <h3 className="text-sm text-zinc-400 mb-3">Forma de pagamento</h3>
 
             <div className="space-y-2">
               {[
                 { id: "pix", label: "Pix", icon: <QrCode size={14} /> },
-                { id: "credit_card", label: "Cartão", icon: <CreditCard size={14} /> },
+                {
+                  id: "credit_card",
+                  label: "Cartão",
+                  icon: <CreditCard size={14} />,
+                },
                 { id: "boleto", label: "Boleto", icon: <Barcode size={14} /> },
               ].map((method) => (
                 <label
@@ -164,7 +195,7 @@ const Checkout = () => {
           <button
             onClick={handleCheckout}
             disabled={loading || cart.length === 0}
-            className="w-full mt-6 bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-semibold transition active:scale-95 disabled:opacity-50"
+            className="w-full mt-6 bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-semibold transition disabled:opacity-50"
           >
             {loading ? "Processando..." : "Finalizar compra"}
           </button>

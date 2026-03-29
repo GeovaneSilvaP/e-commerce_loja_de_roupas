@@ -1,8 +1,8 @@
 import { Router } from "express";
-
 import { upload } from "../config/multer";
 
 import { authMiddleware } from "../middleware/authMiddleware";
+import { adminMiddleware } from "../middleware/adminMiddleware";
 
 import {
   getProducts,
@@ -18,19 +18,32 @@ const router = Router();
    ROTAS DE PRODUTOS
 ================================*/
 
+// Público
 router.get("/products", getProducts);
-
 router.get("/products/:id", getProductById);
 
-router.post("/products", authMiddleware, upload.single("image"), createProduct);
+// Admin
+router.post(
+  "/products",
+  authMiddleware,
+  adminMiddleware,
+  upload.single("image"),
+  createProduct
+);
 
 router.put(
   "/products/:id",
   authMiddleware,
+  adminMiddleware,
   upload.single("image"),
-  updateProducts,
+  updateProducts
 );
 
-router.delete("/products/:id", authMiddleware, deleteProduct);
+router.delete(
+  "/products/:id",
+  authMiddleware,
+  adminMiddleware,
+  deleteProduct
+);
 
 export default router;
