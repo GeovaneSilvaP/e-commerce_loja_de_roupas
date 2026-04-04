@@ -14,11 +14,14 @@ import Orders from "./pages/Orders";
 import Checkout from "./pages/Checkout";
 import AllProducts from "./pages/AllProducts";
 import { CartProvider } from "./context/CartContext";
+import AdminOrders from "./pages/AdminOrders";
 
 function App() {
   return (
     <BrowserRouter>
-      <CartProvider> {/* CartProvider dentro do BrowserRouter */}
+      <CartProvider>
+        {" "}
+        {/* CartProvider dentro do BrowserRouter */}
         <Routes>
           {/* 🌐 PÚBLICO */}
           <Route path="/" element={<Home />} />
@@ -73,8 +76,16 @@ function App() {
               </AdminRoute>
             }
           />
-        </Routes>
 
+          <Route
+            path="/admin/orders"
+            element={
+              <AdminRoute>
+                <AdminOrders />
+              </AdminRoute>
+            }
+          />
+        </Routes>
         <Toaster />
       </CartProvider>
     </BrowserRouter>
