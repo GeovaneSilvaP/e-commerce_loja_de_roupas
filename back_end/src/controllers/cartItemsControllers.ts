@@ -19,7 +19,7 @@ export const addToCart = (req: Request, res: Response) => {
   const user_id = user.id;
   const qty = quantity && quantity > 0 ? quantity : 1;
 
-  // ✅ VERIFICAR SE PRODUTO EXISTE
+  // VERIFICAR SE PRODUTO EXISTE
   const sqlProduct = "SELECT id FROM products WHERE id = ?";
 
   connection.query(sqlProduct, [product_id], (err, product: any) => {
@@ -29,7 +29,7 @@ export const addToCart = (req: Request, res: Response) => {
       return res.status(404).json({ message: "Produto não encontrado" });
     }
 
-    // ✅ VERIFICAR SE JÁ EXISTE NO CARRINHO
+    // VERIFICAR SE JÁ EXISTE NO CARRINHO
     const sqlCheck =
       "SELECT quantity FROM cart_items WHERE product_id = ? AND user_id = ?";
 
@@ -37,7 +37,7 @@ export const addToCart = (req: Request, res: Response) => {
       if (err) return res.status(500).json({ error: err });
 
       if (result.length > 0) {
-        // ✅ ATUALIZA QUANTIDADE
+        // ATUALIZA QUANTIDADE
         const sqlUpdate =
           "UPDATE cart_items SET quantity = quantity + ? WHERE product_id = ? AND user_id = ?";
 
@@ -47,7 +47,7 @@ export const addToCart = (req: Request, res: Response) => {
           return res.json({ message: "Quantidade atualizada" });
         });
       } else {
-        // ✅ INSERE NOVO ITEM
+        // INSERE NOVO ITEM
         const sqlInsert =
           "INSERT INTO cart_items (product_id, quantity, user_id) VALUES (?, ?, ?)";
 

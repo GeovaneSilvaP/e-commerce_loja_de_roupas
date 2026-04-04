@@ -38,7 +38,6 @@ const ProductDetails = () => {
   return (
     <div className="bg-[#0f0f13] min-h-screen text-white">
       <div className="max-w-6xl mx-auto px-6 py-12">
-
         {/* BACK + TITLE */}
         <div className="mb-10">
           <button

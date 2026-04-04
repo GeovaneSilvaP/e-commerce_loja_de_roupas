@@ -3,7 +3,7 @@ import { connection } from "../db/connection";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = "SECRET_KEY";
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 /* ==============================
    REGISTER USER
@@ -12,7 +12,9 @@ export const registerUser = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).json({ message: "Todos os campos são obrigatórios" });
+    return res
+      .status(400)
+      .json({ message: "Todos os campos são obrigatórios" });
   }
 
   try {
@@ -34,9 +36,9 @@ export const registerUser = async (req: Request, res: Response) => {
           (err) => {
             if (err) return res.status(500).json({ error: err });
             res.json({ message: "Usuário criado com sucesso" });
-          }
+          },
         );
-      }
+      },
     );
   } catch (error) {
     res.status(500).json({ message: "Erro interno no servidor" });
@@ -70,14 +72,12 @@ export const loginUser = (req: Request, res: Response) => {
         return res.status(401).json({ message: "Senha inválida" });
       }
 
-      const token = jwt.sign(
-        { id: user.id },
-        JWT_SECRET,
-        { expiresIn: "7d" }
-      );
+      const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, {
+        expiresIn: "7d",
+      });
 
       res.json({ token });
-    }
+    },
   );
 };
 
@@ -109,9 +109,9 @@ export const registerAdmin = async (req: Request, res: Response) => {
         (err) => {
           if (err) return res.status(500).json({ error: err });
           res.json({ message: "Admin criado com sucesso" });
-        }
+        },
       );
-    }
+    },
   );
 };
 
@@ -146,10 +146,10 @@ export const loginAdmin = (req: Request, res: Response) => {
       const token = jwt.sign(
         { id: admin.id, isAdmin: true }, // ✅ isAdmin no token
         JWT_SECRET,
-        { expiresIn: "1d" }
+        { expiresIn: "1d" },
       );
 
       res.json({ token });
-    }
+    },
   );
 };
