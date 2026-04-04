@@ -1,5 +1,5 @@
 import { JSX, useEffect, useState } from "react";
-import { api } from "../services/api";
+import { api, getImageUrl } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -173,7 +173,7 @@ export default function AdminOrders() {
                     <div key={i} className="flex items-center gap-4">
                       <div className="w-14 h-14 bg-[#111118] rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                         <img
-                          src={`http://localhost:3000/uploads/${item.image_url}`}
+                          src={getImageUrl(item.image_url)}
                           alt={item.name}
                           className="w-full h-full object-contain"
                         />

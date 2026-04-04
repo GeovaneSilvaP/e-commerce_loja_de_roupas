@@ -42,12 +42,15 @@ export const getProductById = (req: Request, res: Response) => {
 ================================*/
 export const createProduct = (req: Request, res: Response) => {
   const { name, price, description, stock } = req.body;
-  const image = req.file?.filename;
+  const image = (req.file as any)?.path;
+
+  // ✅ Log para ver o que chegou
+  console.log("BODY:", req.body);
+  console.log("FILE:", req.file);
+  console.log("IMAGE PATH:", image);
 
   if (!name || !price || !stock) {
-    return res.status(400).json({
-      message: "Nome, preço e estoque são obrigatórios",
-    });
+    return res.status(400).json({ message: "Nome, preço e estoque são obrigatórios" });
   }
 
   if (isNaN(price) || isNaN(stock)) {
@@ -76,7 +79,9 @@ export const createProduct = (req: Request, res: Response) => {
 export const updateProducts = (req: Request, res: Response) => {
   const { id } = req.params;
   const { name, price, description, stock } = req.body;
-  const image = req.file?.filename;
+
+  // Cloudinary retorna a URL completa em req.file.path
+  const image = (req.file as any)?.path;
 
   if (!id) {
     return res.status(400).json({ message: "ID é obrigatório" });

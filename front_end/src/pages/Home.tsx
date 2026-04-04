@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-import { api } from "../services/api";
+import { api, getImageUrl } from "../services/api"; 
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { Products } from "../types/Products";
@@ -21,7 +21,6 @@ import banner from "../assets/roupasHome.jpg";
 import OtherOffers from "../components/OtherOffers";
 import Footer from "../components/Footer";
 
-// Decodifica o token para checar isAdmin
 function decodeToken(token: string) {
   try {
     return JSON.parse(atob(token.split(".")[1]));
@@ -58,7 +57,6 @@ export default function Home() {
 
   return (
     <div className="bg-[#0f0f13] min-h-screen text-white">
-      {/* NAVBAR */}
       <nav className="sticky top-0 z-50 flex justify-between items-center px-10 py-4 bg-[#0f0f13]/90 backdrop-blur-md border-b border-white/5">
         <h1 className="text-xl font-extrabold tracking-tight text-white">
           My<span className="text-violet-400">Store</span>
@@ -79,7 +77,6 @@ export default function Home() {
               {label}
             </li>
           ))}
-
           <li
             onClick={() => navigate("/meus-pedidos")}
             className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-all duration-200"
@@ -90,7 +87,6 @@ export default function Home() {
         </ul>
 
         <div className="flex items-center gap-3">
-          {/* Botão Painel Admin — só aparece para admin */}
           {isAdmin && (
             <button
               onClick={() => navigate("/admin")}
@@ -101,7 +97,6 @@ export default function Home() {
             </button>
           )}
 
-          {/* Login / Sair */}
           {token ? (
             <button
               onClick={handleLogout}
@@ -134,12 +129,10 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* HERO */}
       <section className="max-w-6xl mx-auto mt-10 px-4">
         <div className="relative bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex items-center justify-between p-10 gap-8 min-h-[280px]">
           <div className="absolute -top-20 -left-20 w-72 h-72 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 -right-10 w-60 h-60 bg-pink-600/10 rounded-full blur-3xl pointer-events-none" />
-
           <div className="relative z-10">
             <p className="text-xs uppercase tracking-[0.2em] text-violet-400 mb-3 font-medium">
               Nova Coleção de Verão
@@ -155,7 +148,6 @@ export default function Home() {
               COMPRE AGORA <ArrowRight size={16} />
             </button>
           </div>
-
           <div className="relative z-10 w-2/5 shrink-0">
             <img
               src={banner}
@@ -166,7 +158,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PRODUCTS */}
       <section className="max-w-6xl mx-auto mt-16 px-4 pb-20">
         <div className="flex items-end justify-between mb-8">
           <div>
@@ -196,13 +187,12 @@ export default function Home() {
                 className="relative h-44 bg-[#111118] flex items-center justify-center cursor-pointer overflow-hidden"
               >
                 <img
-                  src={`http://localhost:3000/uploads/${product.image_url}`}
+                  src={getImageUrl(product.image_url!)} // ✅
                   alt={product.name}
                   className="h-36 w-full object-contain transition-transform duration-300 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-violet-400/0 group-hover:bg-violet-400/5 transition-all duration-300" />
               </div>
-
               <div className="p-4 flex flex-col gap-3 flex-1">
                 <div>
                   <h3 className="text-[#f0f0f5] font-semibold text-sm leading-snug truncate">
@@ -212,7 +202,6 @@ export default function Home() {
                     R$ {Number(product.price).toFixed(2)}
                   </p>
                 </div>
-
                 <button
                   onClick={() => handleAddToCart(product)}
                   className="mt-auto w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-violet-500/20 border border-white/10 hover:border-violet-500/40 text-white text-xs font-semibold py-2.5 rounded-xl transition-all duration-200 active:scale-95"
@@ -226,13 +215,8 @@ export default function Home() {
         </div>
       </section>
 
-      <div>
-        <OtherOffers />
-      </div>
-
-      <div>
-        <Footer />
-      </div>
+      <div><OtherOffers /></div>
+      <div><Footer /></div>
     </div>
   );
 }

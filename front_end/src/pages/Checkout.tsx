@@ -9,9 +9,10 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { CartItem } from "../types/CartItem";
-import { api } from "../services/api";
+import { api, getImageUrl } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+
 
 const Checkout = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -176,7 +177,7 @@ const Checkout = () => {
                 <div className="flex items-center gap-4">
                   <div className="bg-[#111118] p-2 rounded-lg">
                     <img
-                      src={`http://localhost:3000/uploads/${item.image_url}`}
+                      src={getImageUrl(item.image_url!)}
                       className="w-16 h-16 object-contain"
                     />
                   </div>

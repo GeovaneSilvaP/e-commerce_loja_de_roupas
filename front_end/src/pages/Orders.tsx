@@ -1,5 +1,5 @@
 import { JSX, useEffect, useState } from "react";
-import { api } from "../services/api";
+import { api, getImageUrl  } from "../services/api";
 import { Order } from "../types/OrderItem";
 import { Package, ShoppingBag, Hash, CircleCheck, Clock, XCircle } from "lucide-react";
 
@@ -104,7 +104,7 @@ export default function Orders() {
                     {/* Product image */}
                     <div className="w-16 h-16 bg-[#111118] rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                       <img
-                        src={`http://localhost:3000/uploads/${item.image_url}`}
+                        src={getImageUrl(item.image_url)}
                         alt={item.name}
                         className="w-full h-full object-contain"
                       />
