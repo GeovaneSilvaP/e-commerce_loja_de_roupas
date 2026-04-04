@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { CreateOrderService } from "../services/CreateOrderService";
 import { GetOrdersService } from "../services/GetOrdersService";
-import { connection } from "../db/connection"; // ✅ adiciona esse import
+import { connection } from "../db/connection"; // adiciona esse import
 
 // ✅ função query local
 function query(sql: string, values: any[] = []) {

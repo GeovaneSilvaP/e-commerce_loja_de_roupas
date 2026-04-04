@@ -3,7 +3,7 @@ import { MercadoPagoConfig, Payment } from "mercadopago";
 import { connection } from "../db/connection";
 
 const client = new MercadoPagoConfig({
-  accessToken: "APP_USR-5103648830774592-040413-7b4ffb66e03e5fa61d1e6d5a5f8965de-3313855160",
+  accessToken: process.env.MP_ACCESS_TOKEN as string,
 });
 
 function query(sql: string, values: any[] = []) {
@@ -24,7 +24,7 @@ export const createPixPayment = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Total é obrigatório" });
     }
 
-    // ✅ Busca email do usuário no banco pelo id
+    // Busca email do usuário no banco pelo id
     const result = await query("SELECT email FROM users WHERE id = ?", [user.id]);
 
     if (!result.length) {
