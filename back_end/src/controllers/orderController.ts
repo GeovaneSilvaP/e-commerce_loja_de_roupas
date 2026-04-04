@@ -3,7 +3,7 @@ import { CreateOrderService } from "../services/CreateOrderService";
 import { GetOrdersService } from "../services/GetOrdersService";
 import { connection } from "../db/connection"; // adiciona esse import
 
-// ✅ função query local
+// função query local
 function query(sql: string, values: any[] = []) {
   return new Promise<any>((resolve, reject) => {
     connection.query(sql, values, (err, result) => {
