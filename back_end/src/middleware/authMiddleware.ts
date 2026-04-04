@@ -1,8 +1,7 @@
-/* ==============================
-   MIDDLEWARE AUTH
-================================*/
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+
+const JWT_SECRET = "SECRET_KEY";
 
 export const authMiddleware = (
   req: Request,
@@ -15,17 +14,18 @@ export const authMiddleware = (
     return res.status(401).json({ message: "Token não fornecido" });
   }
 
-  const token:any = authHeader.split(" ")[1];
+  const token = authHeader.split(" ")[1]; // pode ser undefined para o TS
+
+  if (!token) {
+    return res.status(401).json({ message: "Token não fornecido" });
+  }
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "SECRET_KEY"
-    ) as any;
+    const decoded = jwt.verify(token, JWT_SECRET) as any;
 
-    // PADRÃO LIMPO
     (req as any).user = {
       id: decoded.id,
+      isAdmin: decoded.isAdmin ?? false,
     };
 
     next();

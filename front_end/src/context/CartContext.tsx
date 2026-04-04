@@ -7,6 +7,7 @@ import {
 } from "react";
 import { Products } from "../types/Products";
 import { api } from "../services/api";
+import { useNavigate } from "react-router-dom";
 
 type CartItem = Products & {
   quantity: number;
@@ -28,26 +29,15 @@ const CartContext = createContext<CartContextType>({} as CartContextType);
 
 export const CartProvider = ({ children }: Props) => {
   const [cart, setCart] = useState<CartItem[]>([]);
-
-  /* ==============================
-     TOKEN AUTOMÁTICO (ESSENCIAL)
-  ================================*/
-  useEffect(() => {
-    api.interceptors.request.use((config) => {
-      const token = localStorage.getItem("token");
-
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-
-      return config;
-    });
-  }, []);
+  const navigate = useNavigate();
 
   /* ==============================
      BUSCAR CARRINHO DO BACKEND
   ================================*/
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return; // ✅ não busca se não estiver logado
+
     const fetchCart = async () => {
       try {
         const response = await api.get("/cart");
@@ -55,9 +45,11 @@ export const CartProvider = ({ children }: Props) => {
         const formatted = response.data.map((item: any) => ({
           id: item.product_id,
           name: item.name,
-          price: item.price,
+          price: Number(item.price),
           image_url: item.image_url,
           quantity: item.quantity,
+          description: "",
+          stock: 0,
         }));
 
         setCart(formatted);
@@ -73,6 +65,14 @@ export const CartProvider = ({ children }: Props) => {
      ADICIONAR
   ================================*/
   const addToCart = async (product: Products) => {
+    const token = localStorage.getItem("token");
+
+    // ✅ Redireciona para login se não estiver autenticado
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     try {
       await api.post("/cart", {
         product_id: product.id,
@@ -86,7 +86,7 @@ export const CartProvider = ({ children }: Props) => {
           return prev.map((item) =>
             item.id === product.id
               ? { ...item, quantity: item.quantity + 1 }
-              : item,
+              : item
           );
         }
 
@@ -102,12 +102,12 @@ export const CartProvider = ({ children }: Props) => {
   ================================*/
   const increaseQuantity = async (id: number) => {
     try {
-      await api.put(`/cart/${id}/increase`);
+      await api.put(`/cart/increase/${id}`);
 
       setCart((prev) =>
         prev.map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
-        ),
+          item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+        )
       );
     } catch (error) {
       console.error(error);
@@ -119,16 +119,14 @@ export const CartProvider = ({ children }: Props) => {
   ================================*/
   const decreaseQuantity = async (id: number) => {
     try {
-      await api.put(`/cart/${id}/decrease`);
+      await api.put(`/cart/decrease/${id}`);
 
       setCart((prev) =>
         prev
           .map((item) =>
-            item.id === id
-              ? { ...item, quantity: item.quantity - 1 }
-              : item,
+            item.id === id ? { ...item, quantity: item.quantity - 1 } : item
           )
-          .filter((item) => item.quantity > 0),
+          .filter((item) => item.quantity > 0)
       );
     } catch (error) {
       console.error(error);
@@ -141,7 +139,6 @@ export const CartProvider = ({ children }: Props) => {
   const removeFromCart = async (id: number) => {
     try {
       await api.delete(`/cart/${id}`);
-
       setCart((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
       console.error(error);

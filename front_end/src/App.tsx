@@ -13,67 +13,70 @@ import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Checkout from "./pages/Checkout";
 import AllProducts from "./pages/AllProducts";
+import { CartProvider } from "./context/CartContext";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* 🌐 PÚBLICO */}
-        <Route path="/" element={<Home />} />
-        <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/products" element={<AllProducts />} />
-        <Route path="/login" element={<Auth />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
+      <CartProvider> {/* CartProvider dentro do BrowserRouter */}
+        <Routes>
+          {/* 🌐 PÚBLICO */}
+          <Route path="/" element={<Home />} />
+          <Route path="/product/:id" element={<ProductDetails />} />
+          <Route path="/products" element={<AllProducts />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* 🔐 USUÁRIO LOGADO */}
-        <Route
-          path="/cart"
-          element={
-            <PrivateRoute>
-              <Cart />
-            </PrivateRoute>
-          }
-        />
+          {/* 🔐 USUÁRIO LOGADO */}
+          <Route
+            path="/cart"
+            element={
+              <PrivateRoute>
+                <Cart />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/checkout"
-          element={
-            <PrivateRoute>
-              <Checkout />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/checkout"
+            element={
+              <PrivateRoute>
+                <Checkout />
+              </PrivateRoute>
+            }
+          />
 
-        <Route
-          path="/meus-pedidos"
-          element={
-            <PrivateRoute>
-              <Orders />
-            </PrivateRoute>
-          }
-        />
+          <Route
+            path="/meus-pedidos"
+            element={
+              <PrivateRoute>
+                <Orders />
+              </PrivateRoute>
+            }
+          />
 
-        {/* 🔒 ADMIN */}
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminDashboard />
-            </AdminRoute>
-          }
-        />
+          {/* 🔒 ADMIN */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminDashboard />
+              </AdminRoute>
+            }
+          />
 
-        <Route
-          path="/edit/:id"
-          element={
-            <AdminRoute>
-              <EditProducts />
-            </AdminRoute>
-          }
-        />
-      </Routes>
+          <Route
+            path="/edit/:id"
+            element={
+              <AdminRoute>
+                <EditProducts />
+              </AdminRoute>
+            }
+          />
+        </Routes>
 
-      <Toaster />
+        <Toaster />
+      </CartProvider>
     </BrowserRouter>
   );
 }

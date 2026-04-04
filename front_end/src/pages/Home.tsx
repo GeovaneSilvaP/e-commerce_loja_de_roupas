@@ -7,6 +7,8 @@ import {
   Watch,
   ClipboardList,
   ArrowRight,
+  LogOut,
+  LayoutDashboard,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -19,10 +21,23 @@ import banner from "../assets/roupasHome.jpg";
 import OtherOffers from "../components/OtherOffers";
 import Footer from "../components/Footer";
 
+// Decodifica o token para checar isAdmin
+function decodeToken(token: string) {
+  try {
+    return JSON.parse(atob(token.split(".")[1]));
+  } catch {
+    return null;
+  }
+}
+
 export default function Home() {
   const [products, setProducts] = useState<Products[]>([]);
   const { addToCart, cart } = useCart();
   const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+  const decoded = token ? decodeToken(token) : null;
+  const isAdmin = decoded?.isAdmin === true;
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -33,6 +48,12 @@ export default function Home() {
   const handleAddToCart = (product: Products) => {
     addToCart(product);
     toast.success(`${product.name} adicionado 🛒`);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    window.location.reload();
   };
 
   return (
@@ -69,13 +90,35 @@ export default function Home() {
         </ul>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate("/login")}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-200"
-          >
-            <User size={16} />
-            Login
-          </button>
+          {/* Botão Painel Admin — só aparece para admin */}
+          {isAdmin && (
+            <button
+              onClick={() => navigate("/admin")}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-violet-400 hover:text-white hover:bg-violet-500/20 border border-violet-500/30 transition-all duration-200"
+            >
+              <LayoutDashboard size={16} />
+              Painel Admin
+            </button>
+          )}
+
+          {/* Login / Sair */}
+          {token ? (
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-200"
+            >
+              <LogOut size={16} />
+              Sair
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/login")}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-200"
+            >
+              <User size={16} />
+              Login
+            </button>
+          )}
 
           <button
             onClick={() => navigate("/cart")}
@@ -94,7 +137,6 @@ export default function Home() {
       {/* HERO */}
       <section className="max-w-6xl mx-auto mt-10 px-4">
         <div className="relative bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex items-center justify-between p-10 gap-8 min-h-[280px]">
-          {/* Background glow */}
           <div className="absolute -top-20 -left-20 w-72 h-72 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-20 -right-10 w-60 h-60 bg-pink-600/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -149,7 +191,6 @@ export default function Home() {
               key={product.id}
               className="group bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#3d3d55]"
             >
-              {/* Image */}
               <div
                 onClick={() => navigate(`/product/${product.id}`)}
                 className="relative h-44 bg-[#111118] flex items-center justify-center cursor-pointer overflow-hidden"
@@ -162,7 +203,6 @@ export default function Home() {
                 <div className="absolute inset-0 bg-violet-400/0 group-hover:bg-violet-400/5 transition-all duration-300" />
               </div>
 
-              {/* Info */}
               <div className="p-4 flex flex-col gap-3 flex-1">
                 <div>
                   <h3 className="text-[#f0f0f5] font-semibold text-sm leading-snug truncate">

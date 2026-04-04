@@ -22,7 +22,7 @@ const EditProducts = () => {
     api
       .get(`/products/${id}`)
       .then((res) => {
-        const p = res.data[0];
+        const p = res.data;
         setName(p.name);
         setPrice(p.price);
         setDescription(p.description);

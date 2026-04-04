@@ -15,7 +15,8 @@ const ProductDetails = () => {
   const [otherProducts, setOtherProducts] = useState<Products[]>([]);
 
   useEffect(() => {
-    api.get(`/products/${id}`).then((res) => setProduct(res.data[0]));
+    // ✅ backend retorna objeto direto (result[0]), não um array
+    api.get(`/products/${id}`).then((res) => setProduct(res.data));
     api.get("/products").then((res) => setOtherProducts(res.data));
   }, [id]);
 
@@ -125,7 +126,6 @@ const ProductDetails = () => {
                   key={item.id}
                   className="group bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:border-[#3d3d55]"
                 >
-                  {/* Image */}
                   <div
                     onClick={() => navigate(`/product/${item.id}`)}
                     className="relative h-44 bg-[#111118] flex items-center justify-center cursor-pointer overflow-hidden"
@@ -138,7 +138,6 @@ const ProductDetails = () => {
                     <div className="absolute inset-0 bg-violet-400/0 group-hover:bg-violet-400/5 transition-all duration-300" />
                   </div>
 
-                  {/* Info */}
                   <div className="p-4 flex flex-col gap-3 flex-1">
                     <div>
                       <h3 className="text-[#f0f0f5] font-semibold text-sm leading-snug truncate">

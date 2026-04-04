@@ -3,6 +3,7 @@ import { api } from "../services/api";
 
 type User = {
   id: number;
+  isAdmin?: boolean;
 };
 
 type AuthContextType = {
@@ -15,6 +16,16 @@ type AuthContextType = {
 
 const AuthContext = createContext({} as AuthContextType);
 
+// ✅ Decodifica o payload do JWT sem biblioteca extra
+function decodeToken(token: string): User | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return { id: payload.id, isAdmin: payload.isAdmin ?? false };
+  } catch {
+    return null;
+  }
+}
+
 export const AuthProvider = ({ children }: any) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -24,17 +35,20 @@ export const AuthProvider = ({ children }: any) => {
 
     if (storedToken) {
       setToken(storedToken);
-      setUser({ id: 1 }); 
+      // ✅ Pega o id real do token, não hardcoded
+      setUser(decodeToken(storedToken));
     }
   }, []);
 
   async function login(email: string, password: string) {
     const res = await api.post("/login", { email, password });
+    const receivedToken = res.data.token;
 
-    localStorage.setItem("token", res.data.token);
+    localStorage.setItem("token", receivedToken);
+    localStorage.setItem("role", "user"); // salva role
 
-    setToken(res.data.token);
-    setUser({ id: 1 });
+    setToken(receivedToken);
+    setUser(decodeToken(receivedToken)); // id real do token
   }
 
   async function register(name: string, email: string, password: string) {
@@ -43,6 +57,7 @@ export const AuthProvider = ({ children }: any) => {
 
   function logout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     setUser(null);
     setToken(null);
   }
