@@ -7,5 +7,6 @@ const orderController = new OrderController();
 
 router.post("/orders", authMiddleware, orderController.create);
 router.get("/orders", authMiddleware, orderController.getAll);
+router.patch("/orders/:id/cancel", authMiddleware, orderController.cancel);
 
 export default router;

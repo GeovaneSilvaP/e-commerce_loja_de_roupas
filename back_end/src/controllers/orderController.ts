@@ -25,7 +25,9 @@ export class OrderController {
       const { payment_method } = req.body;
 
       if (!payment_method) {
-        return res.status(400).json({ message: "Forma de pagamento obrigatória" });
+        return res
+          .status(400)
+          .json({ message: "Forma de pagamento obrigatória" });
       }
 
       const service = new CreateOrderService();
@@ -52,6 +54,36 @@ export class OrderController {
     } catch (error: any) {
       console.error("ERRO GET ORDERS:", error);
       return res.status(400).json({ error: error.message });
+    }
+  }
+
+  async cancel(req: Request, res: Response) {
+    try {
+      const user = (req as any).user;
+      const { id } = req.params;
+
+      const orders: any[] = await query(
+        "SELECT * FROM orders WHERE id = ? AND user_id = ?",
+        [id, user.id],
+      );
+
+      if (!orders.length) {
+        return res.status(404).json({ message: "Pedido não encontrado" });
+      }
+
+      if (orders[0].status === "cancelled") {
+        return res.status(404).json({ message: "Pedido já cancelado" });
+      }
+
+      if (orders[0].status === "completed") {
+        return res
+          .status(404)
+          .json({ message: "Pedido concluído não pode ser cancelado" });
+      }
+
+      await query("UPDATE orders SET status = 'cancelled' WHERE id = ?", [id]);
+    } catch (error: any) {
+      return res.status(500).json({ error: error.message });
     }
   }
 }
@@ -95,6 +127,28 @@ export const getAllOrdersAdmin = async (req: Request, res: Response) => {
     }));
 
     return res.json(result);
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+/* ==============================
+   UPDATE ORDER STATUS (ADMIN)
+================================*/
+export const updateOderStatus = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const validStatues = ["pending", "paid", "completed", "cancelled"];
+
+    if (!validStatues.includes(status)) {
+      return res.status(400).json({ message: "Status inválido" });
+    }
+
+    await query("UPDATE orders SET status = ? WHERE id = ?", [status, id]);
+
+    return res.json({ message: "Status atualizado com sucesso" });
   } catch (error: any) {
     return res.status(500).json({ error: error.message });
   }
