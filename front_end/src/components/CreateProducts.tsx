@@ -8,6 +8,7 @@ const CreateProducts = () => {
   const [price, setPrice] = useState<number | "">("");
   const [description, setDescription] = useState("");
   const [stock, setStock] = useState<number | "">("");
+  const [category, setCategory] = useState<string | "">("outros");
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
@@ -25,6 +26,7 @@ const CreateProducts = () => {
       formData.append("price", String(price));
       formData.append("description", description);
       formData.append("stock", String(stock));
+      formData.append("category", category);
       if (image) formData.append("image", image);
       await api.post("/products", formData);
       toast.success("Produto criado com sucesso 🚀");
@@ -97,6 +99,21 @@ const CreateProducts = () => {
               className={inputClass}
             />
           </div>
+        </div>
+
+        {/* CATEGORIA */}
+        <div className="field" style={{ animationDelay: "150ms" }}>
+          <label className={labelClass}>Categoria</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className={inputClass}
+          >
+            <option value="outros">Outros</option>
+            <option value="feminino">Feminino</option>
+            <option value="masculino">Masculino</option>
+            <option value="acessorios">Acessórios</option>
+          </select>
         </div>
 
         {/* DESCRIÇÃO */}

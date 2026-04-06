@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-import { api, getImageUrl } from "../services/api"; 
+import { api, getImageUrl } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { Products } from "../types/Products";
@@ -55,6 +55,13 @@ export default function Home() {
     window.location.reload();
   };
 
+  const categories = [
+    { icon: <LayoutGrid size={15} />, label: "Todos", value: "" },
+    { icon: <Shirt size={15} />, label: "Mulheres", value: "feminino" },
+    { icon: <User size={15} />, label: "Masculinos", value: "masculino" },
+    { icon: <Watch size={15} />, label: "Acessórios", value: "acessorios" },
+  ];
+
   return (
     <div className="bg-[#0f0f13] min-h-screen text-white">
       <nav className="sticky top-0 z-50 flex justify-between items-center px-10 py-4 bg-[#0f0f13]/90 backdrop-blur-md border-b border-white/5">
@@ -63,14 +70,14 @@ export default function Home() {
         </h1>
 
         <ul className="flex gap-1 text-sm text-zinc-400">
-          {[
-            { icon: <LayoutGrid size={15} />, label: "Categorias" },
-            { icon: <Shirt size={15} />, label: "Mulheres" },
-            { icon: <User size={15} />, label: "Masculinos" },
-            { icon: <Watch size={15} />, label: "Acessórios" },
-          ].map(({ icon, label }) => (
+          {categories.map(({ icon, label, value }) => (
             <li
               key={label}
+              onClick={() =>
+                value
+                  ? navigate(`/products?category=${value}`)
+                  : navigate("/products")
+              }
               className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-all duration-200"
             >
               {icon}
@@ -215,8 +222,12 @@ export default function Home() {
         </div>
       </section>
 
-      <div><OtherOffers /></div>
-      <div><Footer /></div>
+      <div>
+        <OtherOffers />
+      </div>
+      <div>
+        <Footer />
+      </div>
     </div>
   );
 }

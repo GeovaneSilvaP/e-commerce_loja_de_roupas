@@ -33,7 +33,7 @@ export const getProductById = (req: Request, res: Response) => {
       }
 
       res.json(result[0]);
-    }
+    },
   );
 };
 
@@ -44,13 +44,14 @@ export const createProduct = (req: Request, res: Response) => {
   const { name, price, description, stock } = req.body;
   const image = (req.file as any)?.path;
 
-  // ✅ Log para ver o que chegou
   console.log("BODY:", req.body);
   console.log("FILE:", req.file);
   console.log("IMAGE PATH:", image);
 
   if (!name || !price || !stock) {
-    return res.status(400).json({ message: "Nome, preço e estoque são obrigatórios" });
+    return res
+      .status(400)
+      .json({ message: "Nome, preço e estoque são obrigatórios" });
   }
 
   if (isNaN(price) || isNaN(stock)) {
@@ -69,7 +70,7 @@ export const createProduct = (req: Request, res: Response) => {
       if (err) return res.status(500).json({ error: err });
 
       res.json({ message: "Produto criado com sucesso" });
-    }
+    },
   );
 };
 
@@ -130,6 +131,22 @@ export const deleteProduct = (req: Request, res: Response) => {
       }
 
       res.json({ message: "Produto deletado com sucesso" });
-    }
+    },
+  );
+};
+
+/* ==============================
+   CATEGORY PRODUCT
+================================*/
+export const getProductByCategory = (req: Request, res: Response) => {
+  const { category } = req.params;
+
+  connection.query(
+    "SELECT * FROM products WHERE category = ?",
+    [category],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err });
+      res.json(results);
+    },
   );
 };

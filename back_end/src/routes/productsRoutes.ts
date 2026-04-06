@@ -10,6 +10,7 @@ import {
   deleteProduct,
   getProductById,
   updateProducts,
+  getProductByCategory,
 } from "../controllers/productsControllers";
 
 const router = Router();
@@ -21,6 +22,7 @@ const router = Router();
 // Público
 router.get("/products", getProducts);
 router.get("/products/:id", getProductById);
+router.get("/products/category/:category", getProductByCategory);
 
 // Admin
 router.post(
@@ -28,7 +30,7 @@ router.post(
   authMiddleware,
   adminMiddleware,
   upload.single("image"),
-  createProduct
+  createProduct,
 );
 
 router.put(
@@ -36,14 +38,9 @@ router.put(
   authMiddleware,
   adminMiddleware,
   upload.single("image"),
-  updateProducts
+  updateProducts,
 );
 
-router.delete(
-  "/products/:id",
-  authMiddleware,
-  adminMiddleware,
-  deleteProduct
-);
+router.delete("/products/:id", authMiddleware, adminMiddleware, deleteProduct);
 
 export default router;
