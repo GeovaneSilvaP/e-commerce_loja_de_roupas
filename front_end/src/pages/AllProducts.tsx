@@ -3,20 +3,46 @@ import { api, getImageUrl } from "../services/api";
 import { Products } from "../types/Products";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
-import { ShoppingCart, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { ShoppingCart, ArrowLeft, LayoutGrid, Shirt, User, Watch } from "lucide-react";
+import { useNavigate, useSearchParams } from "react-router-dom"; // ✅
+
+const categoryLabels: Record<string, string> = {
+  "": "Todos os Produtos",
+  feminino: "Feminino",
+  masculino: "Masculino",
+  acessorios: "Acessórios",
+};
+
+const categories = [
+  { icon: <LayoutGrid size={14} />, label: "Todos", value: "" },
+  { icon: <Shirt size={14} />, label: "Feminino", value: "feminino" },
+  { icon: <User size={14} />, label: "Masculino", value: "masculino" },
+  { icon: <Watch size={14} />, label: "Acessórios", value: "acessorios" },
+];
 
 const AllProducts = () => {
   const [products, setProducts] = useState<Products[]>([]);
+  const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams(); // ✅
+
+  const activeCategory = searchParams.get("category") || ""; // ✅ lê da URL
 
   useEffect(() => {
+    setLoading(true);
+
+    // ✅ Busca por categoria ou todos
+    const url = activeCategory
+      ? `/products/category/${activeCategory}`
+      : "/products";
+
     api
-      .get("/products")
+      .get(url)
       .then((res) => setProducts(res.data))
-      .catch(() => toast.error("Erro ao carregar produtos"));
-  }, []);
+      .catch(() => toast.error("Erro ao carregar produtos"))
+      .finally(() => setLoading(false));
+  }, [activeCategory]); // ✅ recarrega quando categoria muda
 
   const handleAddToCart = (product: Products) => {
     addToCart(product);
@@ -25,8 +51,7 @@ const AllProducts = () => {
 
   return (
     <div className="bg-[#0f0f13] min-h-screen text-white px-4 py-10">
-      {/* HEADER */}
-      <div className="max-w-6xl mx-auto mb-10">
+      <div className="max-w-6xl mx-auto mb-8">
         {/* VOLTAR */}
         <button
           onClick={() => navigate("/")}
@@ -39,77 +64,116 @@ const AllProducts = () => {
         </button>
 
         {/* TITULO */}
-        <div className="flex items-end justify-between">
+        <div className="flex items-end justify-between mb-6">
           <div>
             <p className="text-xs uppercase tracking-widest text-zinc-600 mb-1">
               Catálogo completo
             </p>
             <h1 className="text-4xl font-extrabold tracking-tight">
-              Todos os <span className="text-violet-400">Produtos</span>
+              {/* ✅ Título muda com a categoria */}
+              {categoryLabels[activeCategory] ?? "Produtos"}{" "}
+              {activeCategory && (
+                <span className="text-violet-400">
+                  {categoryLabels[activeCategory]}
+                </span>
+              )}
+              {!activeCategory && (
+                <span className="text-violet-400">Produtos</span>
+              )}
             </h1>
           </div>
-
           <span className="text-sm text-zinc-500">{products.length} itens</span>
+        </div>
+
+        {/* ✅ FILTROS DE CATEGORIA */}
+        <div className="flex gap-2 flex-wrap">
+          {categories.map(({ icon, label, value }) => (
+            <button
+              key={value}
+              onClick={() =>
+                value
+                  ? setSearchParams({ category: value })
+                  : setSearchParams({})
+              }
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm transition-all duration-200 border ${
+                activeCategory === value
+                  ? "bg-violet-500/20 border-violet-500/50 text-violet-400"
+                  : "bg-white/5 border-white/10 text-zinc-400 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              {icon}
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* GRID */}
-      <section className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="group bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex flex-col
-              transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] hover:border-[#3d3d55]"
-            >
-              {/* IMAGE */}
-              <div
-                onClick={() => navigate(`/product/${product.id}`)}
-                className="relative h-44 bg-[#111118] flex items-center justify-center cursor-pointer overflow-hidden"
-              >
-                <img
-                  src={getImageUrl(product.image_url!)}
-                  alt={product.name}
-                  className="h-36 w-full object-contain transition-all duration-500 group-hover:scale-110 group-hover:brightness-110"
-                />
-
-                <div className="absolute inset-0 bg-violet-400/0 group-hover:bg-violet-400/10 transition" />
-
-                {/* Hover label */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                  <span className="text-xs font-semibold text-white/80 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
-                    Ver produto
-                  </span>
-                </div>
-              </div>
-
-              {/* INFO */}
-              <div className="p-4 flex flex-col gap-3 flex-1">
-                <div>
-                  <h3 className="text-[#f0f0f5] font-semibold text-sm truncate">
-                    {product.name}
-                  </h3>
-
-                  <p className="text-violet-400 font-bold text-base mt-1">
-                    R$ {Number(product.price).toFixed(2)}
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => handleAddToCart(product)}
-                  className="mt-auto w-full flex items-center justify-center gap-2
-                  bg-white/5 hover:bg-violet-500/20 border border-white/10 hover:border-violet-500/40
-                  text-white text-xs font-semibold py-2.5 rounded-xl
-                  transition-all duration-200 active:scale-95"
-                >
-                  <ShoppingCart size={13} />
-                  Adicionar ao Carrinho
-                </button>
-              </div>
-            </div>
+      {/* LOADING */}
+      {loading && (
+        <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="h-64 rounded-2xl bg-[#18181f] animate-pulse" />
           ))}
         </div>
-      </section>
+      )}
+
+      {/* EMPTY */}
+      {!loading && products.length === 0 && (
+        <div className="max-w-6xl mx-auto flex flex-col items-center justify-center py-24 gap-3 text-zinc-700">
+          <ShoppingCart size={48} />
+          <p className="text-sm">Nenhum produto encontrado nesta categoria.</p>
+        </div>
+      )}
+
+      {/* GRID */}
+      {!loading && products.length > 0 && (
+        <section className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="group bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_60px_rgba(0,0,0,0.5)] hover:border-[#3d3d55]"
+              >
+                <div
+                  onClick={() => navigate(`/product/${product.id}`)}
+                  className="relative h-44 bg-[#111118] flex items-center justify-center cursor-pointer overflow-hidden"
+                >
+                  <img
+                    src={getImageUrl(product.image_url!)}
+                    alt={product.name}
+                    className="h-36 w-full object-contain transition-all duration-500 group-hover:scale-110 group-hover:brightness-110"
+                  />
+                  <div className="absolute inset-0 bg-violet-400/0 group-hover:bg-violet-400/10 transition" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                    <span className="text-xs font-semibold text-white/80 bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                      Ver produto
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-4 flex flex-col gap-3 flex-1">
+                  <div>
+                    <h3 className="text-[#f0f0f5] font-semibold text-sm truncate">
+                      {product.name}
+                    </h3>
+                    <p className="text-violet-400 font-bold text-base mt-1">
+                      R$ {Number(product.price).toFixed(2)}
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className="mt-auto w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-violet-500/20 border border-white/10 hover:border-violet-500/40 text-white text-xs font-semibold py-2.5 rounded-xl transition-all duration-200 active:scale-95"
+                  >
+                    <ShoppingCart size={13} />
+                    Adicionar ao Carrinho
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 };

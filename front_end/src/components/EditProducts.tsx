@@ -12,6 +12,7 @@ const EditProducts = () => {
   const [price, setPrice] = useState<number | "">("");
   const [description, setDescription] = useState("");
   const [stock, setStock] = useState<number | "">("");
+  const [category, setCategory] = useState("outros"); // ✅
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -27,6 +28,7 @@ const EditProducts = () => {
         setPrice(p.price);
         setDescription(p.description);
         setStock(p.stock);
+        setCategory(p.category || "outros"); // ✅
       })
       .catch(() => toast.error("Erro ao carregar produto"))
       .finally(() => setFetching(false));
@@ -40,6 +42,7 @@ const EditProducts = () => {
       formData.append("price", String(price));
       formData.append("description", description);
       formData.append("stock", String(stock));
+      formData.append("category", category); // ✅
       if (image) formData.append("image", image);
       await api.put(`/products/${id}`, formData);
       toast.success("Produto atualizado com sucesso 🚀");
@@ -103,7 +106,6 @@ const EditProducts = () => {
 
         {/* CARD */}
         <div className="bg-[#18181f] border border-[#252530] rounded-2xl p-6 shadow-2xl">
-          {/* SKELETON enquanto carrega */}
           {fetching ? (
             <div className="space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
@@ -153,6 +155,21 @@ const EditProducts = () => {
                 </div>
               </div>
 
+              {/* ✅ CATEGORIA */}
+              <div className="field" style={{ animationDelay: "90ms" }}>
+                <label className={labelClass}>Categoria</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="outros">Outros</option>
+                  <option value="feminino">Feminino</option>
+                  <option value="masculino">Masculino</option>
+                  <option value="acessorios">Acessórios</option>
+                </select>
+              </div>
+
               {/* DESCRIÇÃO */}
               <div className="field" style={{ animationDelay: "120ms" }}>
                 <label className={labelClass}>Descrição</label>
@@ -168,7 +185,6 @@ const EditProducts = () => {
               {/* UPLOAD */}
               <div className="field" style={{ animationDelay: "180ms" }}>
                 <label className={labelClass}>Nova imagem (opcional)</label>
-
                 <label
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -213,8 +229,7 @@ const EditProducts = () => {
                     <button
                       type="button"
                       onClick={() => setImage(null)}
-                      className="absolute top-2 right-2 w-7 h-7 bg-black/70 rounded-full flex items-center justify-center
-                                 opacity-0 group-hover:opacity-100 hover:bg-red-500/80 transition-all duration-200"
+                      className="absolute top-2 right-2 w-7 h-7 bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-red-500/80 transition-all duration-200"
                     >
                       <X size={13} className="text-white" />
                     </button>
@@ -227,9 +242,7 @@ const EditProducts = () => {
                 <button
                   onClick={updateProduct}
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-violet-500 hover:bg-violet-600 text-white font-bold py-3.5 rounded-xl
-                             transition-all duration-200 active:scale-95 shadow-lg shadow-violet-500/20
-                             disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
+                  className="w-full flex items-center justify-center gap-2 bg-violet-500 hover:bg-violet-600 text-white font-bold py-3.5 rounded-xl transition-all duration-200 active:scale-95 shadow-lg shadow-violet-500/20 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden group"
                 >
                   <span className="flex items-center gap-2 relative z-10">
                     {loading ? (

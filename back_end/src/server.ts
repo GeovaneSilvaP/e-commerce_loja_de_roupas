@@ -10,6 +10,7 @@ import adminRoutes from "./routes/adminRoutes";
 import orderRoutes from "./routes/orderRoutes";
 import userRoutes from "./routes/userRoutes";
 import pixRoutes from "./routes/pixRoutes";
+import reviewRoutes from "./routes/reviewRoutes";
 
 const app = express();
 const port = 3000;
@@ -23,6 +24,7 @@ app.use(adminRoutes);
 app.use(orderRoutes);
 app.use(userRoutes);
 app.use(pixRoutes);
+app.use(reviewRoutes);
 
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
