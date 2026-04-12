@@ -6,6 +6,11 @@ import { getAllOrdersAdmin, updateOderStatus } from "../controllers/orderControl
 
 const router = Router();
 
+/**
+ * Rotas administrativas
+ *
+ * Requer autenticação e permissão de administrador.
+ */
 router.post("/admins/register", registerAdmin);
 router.post("/admin/login", loginAdmin);
 router.get("/admin/orders", authMiddleware, adminMiddleware, getAllOrdersAdmin);

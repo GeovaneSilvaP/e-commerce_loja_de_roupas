@@ -1,16 +1,55 @@
 import { connection } from "../db/connection";
 
-function query(sql: string, values: any[] = []) {
-  return new Promise<any>((resolve, reject) => {
+/**
+ * Executa queries no banco de dados com tipagem genérica.
+ *
+ * Permite definir o tipo de retorno esperado em cada chamada,
+ * garantindo segurança e autocomplete.
+ */
+function query<T>(sql: string, values: unknown[] = []): Promise<T> {
+  return new Promise((resolve, reject) => {
     connection.query(sql, values, (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
+      if (err) return reject(err);
+      resolve(result as T);
     });
   });
 }
 
+/**
+ * Representa um item do carrinho com dados do produto.
+ */
+interface CartItem {
+  product_id: number;
+  quantity: number;
+  price: number;
+  name: string;
+  image_url: string;
+}
+
+/**
+ * DTO de resposta da criação de pedido.
+ */
+interface CreateOrderResponse {
+  order_id: number;
+  total: number;
+  status: "paid" | "pending";
+  payment_method: string;
+  message: string;
+}
+
 export class CreateOrderService {
-  async execute(user_id: number, payment_method: string) {
+  /**
+   * Cria um novo pedido baseado no carrinho do usuário.
+   *
+   * Regras:
+   * - Usuário deve existir
+   * - Carrinho não pode estar vazio
+   * - Pedido é criado com status automático baseado no pagamento
+   */
+  async execute(
+    user_id: number,
+    payment_method: string
+  ): Promise<CreateOrderResponse> {
     if (!user_id) {
       throw new Error("Usuário inválido");
     }
@@ -19,8 +58,7 @@ export class CreateOrderService {
       throw new Error("Forma de pagamento obrigatória");
     }
 
-    // 1. Buscar carrinho (COM DADOS COMPLETOS)
-    const cartItems: any[] = await query(
+    const cartItems = await query<CartItem[]>(
       `SELECT 
         c.product_id,
         c.quantity,
@@ -33,24 +71,27 @@ export class CreateOrderService {
       [user_id]
     );
 
-    if (!cartItems.length) {
+    if (cartItems.length === 0) {
       throw new Error("Carrinho vazio");
     }
 
-    // 2. Calcular total (mais limpo)
+    /**
+     * Calcula o valor total do pedido com base nos itens do carrinho.
+     */
     const total = cartItems.reduce(
-      (sum, item) => sum + item.price * item.quantity,
+      (acc, item) => acc + item.price * item.quantity,
       0
     );
 
-    // 3. Status automático
-    const status =
+    /**
+     * Define status automaticamente conforme método de pagamento.
+     */
+    const status: "paid" | "pending" =
       payment_method === "pix" || payment_method === "credit_card"
         ? "paid"
         : "pending";
 
-    // 4. Criar pedido
-    const orderResult: any = await query(
+    const orderResult = await query<{ insertId: number }>(
       `INSERT INTO orders (user_id, total, status, payment_method) 
        VALUES (?, ?, ?, ?)`,
       [user_id, total, status, payment_method]
@@ -58,8 +99,12 @@ export class CreateOrderService {
 
     const order_id = orderResult.insertId;
 
-    // 5. Inserir itens (EM LOTE - MUITO MAIS RÁPIDO)
-    const values = cartItems.map((item) => [
+    /**
+     * Prepara inserção em lote dos itens do pedido.
+     */
+    const values: Array<
+      [number, number, string, string, number, number]
+    > = cartItems.map((item) => [
       order_id,
       item.product_id,
       item.name,
@@ -75,7 +120,9 @@ export class CreateOrderService {
       [values]
     );
 
-    // 6. Limpar carrinho
+    /**
+     * Remove itens do carrinho após criação do pedido.
+     */
     await query("DELETE FROM cart_items WHERE user_id = ?", [user_id]);
 
     return {

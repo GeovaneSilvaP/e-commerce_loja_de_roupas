@@ -15,9 +15,10 @@ import {
 
 const router = Router();
 
-/* ==============================
-   ROTAS DE PRODUTOS
-================================*/
+/**
+ * Rotas de produtos
+ */
+
 
 // Público
 router.get("/products", getProducts);

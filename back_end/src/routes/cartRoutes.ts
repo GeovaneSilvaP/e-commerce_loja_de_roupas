@@ -10,6 +10,11 @@ import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
 
+/**
+ * Rotas de carrinho
+ *
+ * Todas requerem usuário autenticado.
+ */
 router.post("/cart", authMiddleware, addToCart);
 router.get("/cart", authMiddleware, getCart);
 router.put("/cart/increase/:id", authMiddleware, increaseCart);
