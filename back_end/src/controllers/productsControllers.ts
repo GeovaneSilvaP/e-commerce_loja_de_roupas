@@ -24,7 +24,7 @@ export const getProductById = (req: Request, res: Response) => {
 };
 
 export const createProduct = (req: Request, res: Response) => {
-  const { name, price, description, stock, category } = req.body; // ✅ category
+  const { name, price, description, stock, category } = req.body;
   const image = (req.file as any)?.path;
 
   if (!name || !price || !stock) {
@@ -32,11 +32,11 @@ export const createProduct = (req: Request, res: Response) => {
   }
 
   const sql =
-    "INSERT INTO products (name, price, description, stock, image_url, category) VALUES (?, ?, ?, ?, ?, ?)"; // ✅
+    "INSERT INTO products (name, price, description, stock, image_url, category) VALUES (?, ?, ?, ?, ?, ?)";
 
   connection.query(
     sql,
-    [name, Number(price), description, Number(stock), image, category || "outros"], // ✅
+    [name, Number(price), description, Number(stock), image, category || "outros"], 
     (err) => {
       if (err) return res.status(500).json({ error: err });
       res.json({ message: "Produto criado com sucesso" });
