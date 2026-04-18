@@ -46,13 +46,13 @@ export const createProduct = (req: Request, res: Response) => {
 
 export const updateProducts = (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, price, description, stock, category } = req.body; // ✅ category
+  const { name, price, description, stock, category } = req.body;
   const image = (req.file as any)?.path;
 
   if (!id) return res.status(400).json({ message: "ID é obrigatório" });
 
-  let sql = "UPDATE products SET name=?, price=?, description=?, stock=?, category=?"; // ✅
-  const params: any[] = [name, Number(price), description, Number(stock), category || "outros"]; // ✅
+  let sql = "UPDATE products SET name=?, price=?, description=?, stock=?, category=?";
+  const params: any[] = [name, Number(price), description, Number(stock), category || "outros"]; 
 
   if (image) {
     sql += ", image_url=?";

@@ -32,7 +32,6 @@ export const registerUser = async (req: Request, res: Response) => {
           "INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
           [name, email, hash],
           (err) => {
-            // agora trata erro do INSERT
             if (err) return res.status(500).json({ error: err });
             res.json({ message: "Usuário criado com sucesso" });
           }

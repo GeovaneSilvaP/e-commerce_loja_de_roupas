@@ -15,6 +15,7 @@ import Checkout from "./pages/Checkout";
 import AllProducts from "./pages/AllProducts";
 import { CartProvider } from "./context/CartContext";
 import AdminOrders from "./pages/AdminOrders";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -23,14 +24,14 @@ function App() {
         {" "}
         {/* CartProvider dentro do BrowserRouter */}
         <Routes>
-          {/* 🌐 PÚBLICO */}
+          {/* PÚBLICO */}
           <Route path="/" element={<Home />} />
           <Route path="/product/:id" element={<ProductDetails />} />
           <Route path="/products" element={<AllProducts />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/admin/login" element={<AdminLogin />} />
 
-          {/* 🔐 USUÁRIO LOGADO */}
+          {/* USUÁRIO LOGADO */}
           <Route
             path="/cart"
             element={
@@ -58,7 +59,7 @@ function App() {
             }
           />
 
-          {/* 🔒 ADMIN */}
+          {/* ADMIN */}
           <Route
             path="/admin"
             element={
@@ -85,6 +86,8 @@ function App() {
               </AdminRoute>
             }
           />
+
+          <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
       </CartProvider>
