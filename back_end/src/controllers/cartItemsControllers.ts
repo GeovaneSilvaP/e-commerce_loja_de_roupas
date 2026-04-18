@@ -29,6 +29,10 @@ export const addToCart = (req: Request, res: Response) => {
       return res.status(404).json({ message: "Produto não encontrado" });
     }
 
+    if (product[0].stock <= 0) {
+      return res.status(400).json({ message: "Produto fora de estoque" });
+    }
+
     // VERIFICAR SE JÁ EXISTE NO CARRINHO
     const sqlCheck =
       "SELECT quantity FROM cart_items WHERE product_id = ? AND user_id = ?";
@@ -38,6 +42,11 @@ export const addToCart = (req: Request, res: Response) => {
 
       if (result.length > 0) {
         // ATUALIZA QUANTIDADE
+        if (result[0].quantity >= product[0].stock) {
+          return res
+            .status(400)
+            .json({ message: "Quantidade máxima em estoque atingida" });
+        }
         const sqlUpdate =
           "UPDATE cart_items SET quantity = quantity + ? WHERE product_id = ? AND user_id = ?";
 
@@ -108,7 +117,9 @@ export const increaseCart = (req: Request, res: Response) => {
     if (err) return res.status(500).json({ error: err });
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Item não encontrado no carrinho" });
+      return res
+        .status(404)
+        .json({ message: "Item não encontrado no carrinho" });
     }
 
     res.json({ message: "Quantidade aumentada" });
@@ -158,8 +169,7 @@ export const removeCartItem = (req: Request, res: Response) => {
     return res.status(401).json({ message: "Usuário não autenticado" });
   }
 
-  const sql =
-    "DELETE FROM cart_items WHERE product_id = ? AND user_id = ?";
+  const sql = "DELETE FROM cart_items WHERE product_id = ? AND user_id = ?";
 
   connection.query(sql, [id, user.id], (err, result: any) => {
     if (err) return res.status(500).json({ error: err });

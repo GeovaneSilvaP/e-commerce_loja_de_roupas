@@ -5,10 +5,7 @@ import {
   Shirt,
   User,
   Watch,
-  ClipboardList,
   ArrowRight,
-  LogOut,
-  LayoutDashboard,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -20,6 +17,7 @@ import { Products } from "../types/Products";
 import banner from "../assets/roupasHome.jpg";
 import OtherOffers from "../components/OtherOffers";
 import Footer from "../components/Footer";
+import Navbar from "../components/NavBar";
 
 function decodeToken(token: string) {
   try {
@@ -64,102 +62,45 @@ export default function Home() {
 
   return (
     <div className="bg-[#0f0f13] min-h-screen text-white">
-      <nav className="sticky top-0 z-50 flex justify-between items-center px-10 py-4 bg-[#0f0f13]/90 backdrop-blur-md border-b border-white/5">
-        <h1 className="text-xl font-extrabold tracking-tight text-white">
-          My<span className="text-violet-400">Store</span>
-        </h1>
+      <Navbar
+        categories={categories}
+        navigate={navigate}
+        isAdmin={isAdmin}
+        token={token}
+        handleLogout={handleLogout}
+        totalItems={totalItems}
+      />
 
-        <ul className="flex gap-1 text-sm text-zinc-400">
-          {categories.map(({ icon, label, value }) => (
-            <li
-              key={label}
-              onClick={() =>
-                value
-                  ? navigate(`/products?category=${value}`)
-                  : navigate("/products")
-              }
-              className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-all duration-200"
-            >
-              {icon}
-              {label}
-            </li>
-          ))}
-          <li
-            onClick={() => navigate("/meus-pedidos")}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer transition-all duration-200"
-          >
-            <ClipboardList size={15} />
-            Meus Pedidos
-          </li>
-        </ul>
+      <section className="max-w-6xl mx-auto mt-6 md:mt-10 px-4">
+        <div className="relative bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex flex-col md:flex-row items-center justify-between p-6 md:p-10 gap-6 md:gap-8">
+          {/* EFEITOS */}
+          <div className="absolute -top-20 -left-20 w-72 h-72 bg-violet-600/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-20 -right-10 w-60 h-60 bg-pink-600/10 rounded-full blur-3xl" />
 
-        <div className="flex items-center gap-3">
-          {isAdmin && (
-            <button
-              onClick={() => navigate("/admin")}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-violet-400 hover:text-white hover:bg-violet-500/20 border border-violet-500/30 transition-all duration-200"
-            >
-              <LayoutDashboard size={16} />
-              Painel Admin
-            </button>
-          )}
-
-          {token ? (
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-200"
-            >
-              <LogOut size={16} />
-              Sair
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate("/login")}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all duration-200"
-            >
-              <User size={16} />
-              Login
-            </button>
-          )}
-
-          <button
-            onClick={() => navigate("/cart")}
-            className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200"
-          >
-            <ShoppingCart size={18} className="text-zinc-300" />
-            {totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-violet-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                {totalItems}
-              </span>
-            )}
-          </button>
-        </div>
-      </nav>
-
-      <section className="max-w-6xl mx-auto mt-10 px-4">
-        <div className="relative bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden flex items-center justify-between p-10 gap-8 min-h-[280px]">
-          <div className="absolute -top-20 -left-20 w-72 h-72 bg-violet-600/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute -bottom-20 -right-10 w-60 h-60 bg-pink-600/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="relative z-10">
-            <p className="text-xs uppercase tracking-[0.2em] text-violet-400 mb-3 font-medium">
+          {/* TEXTO */}
+          <div className="relative z-10 text-center md:text-left">
+            <p className="text-[10px] md:text-xs uppercase tracking-widest text-violet-400 mb-2 md:mb-3">
               Nova Coleção de Verão
             </p>
-            <h2 className="text-5xl font-extrabold tracking-tight leading-tight mb-6 text-white">
-              Coleção de
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-400">
+
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold leading-tight mb-4 md:mb-6">
+              Coleção de <br />
+              <span className="bg-gradient-to-r from-violet-400 to-pink-400 bg-clip-text text-transparent">
                 Verão 2025
               </span>
             </h2>
-            <button className="flex items-center gap-2 bg-white text-black text-sm font-bold px-6 py-3 rounded-xl hover:bg-zinc-100 active:scale-95 transition-all duration-200">
+
+            <button className="flex items-center justify-center md:justify-start gap-2 bg-white text-black text-xs md:text-sm font-bold px-5 py-2.5 md:px-6 md:py-3 rounded-xl hover:bg-zinc-100 transition">
               COMPRE AGORA <ArrowRight size={16} />
             </button>
           </div>
-          <div className="relative z-10 w-2/5 shrink-0">
+
+          {/* IMAGEM */}
+          <div className="relative z-10 w-full md:w-2/5">
             <img
               src={banner}
-              className="w-full h-56 object-cover rounded-xl shadow-2xl"
               alt="banner"
+              className="w-full h-48 sm:h-56 md:h-64 object-cover rounded-xl shadow-2xl"
             />
           </div>
         </div>
@@ -210,11 +151,20 @@ export default function Home() {
                   </p>
                 </div>
                 <button
-                  onClick={() => handleAddToCart(product)}
-                  className="mt-auto w-full flex items-center justify-center gap-2 bg-white/5 hover:bg-violet-500/20 border border-white/10 hover:border-violet-500/40 text-white text-xs font-semibold py-2.5 rounded-xl transition-all duration-200 active:scale-95"
+                  onClick={() =>
+                    product.stock > 0 ? handleAddToCart(product) : null
+                  }
+                  disabled={product.stock === 0}
+                  className={`mt-auto w-full flex items-center justify-center gap-2 border text-xs font-semibold py-2.5 rounded-xl transition-all duration-200 active:scale-95 ${
+                    product.stock === 0
+                      ? "bg-white/5 border-white/5 text-zinc-600 cursor-not-allowed"
+                      : "bg-white/5 hover:bg-violet-500/20 border-white/10 hover:border-violet-500/40 text-white"
+                  }`}
                 >
                   <ShoppingCart size={13} />
-                  Adicionar ao Carrinho
+                  {product.stock === 0
+                    ? "Fora de estoque"
+                    : "Adicionar ao Carrinho"}
                 </button>
               </div>
             </div>
