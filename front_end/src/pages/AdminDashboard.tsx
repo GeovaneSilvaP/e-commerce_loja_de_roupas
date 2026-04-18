@@ -21,7 +21,7 @@ const AdminDashboard = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* ✅ Botão para ver pedidos */}
+            {/* Botão para ver pedidos */}
             <button
               onClick={() => navigate("/admin/orders")}
               className="flex items-center gap-2 bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 text-violet-400 px-4 py-2 rounded-xl text-sm transition-all duration-200 active:scale-95"

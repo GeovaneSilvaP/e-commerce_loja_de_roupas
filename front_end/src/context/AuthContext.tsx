@@ -16,7 +16,7 @@ type AuthContextType = {
 
 const AuthContext = createContext({} as AuthContextType);
 
-// ✅ Decodifica o payload do JWT sem biblioteca extra
+// Decodifica o payload do JWT sem biblioteca extra
 function decodeToken(token: string): User | null {
   try {
     const payload = JSON.parse(atob(token.split(".")[1]));
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: any) => {
 
     if (storedToken) {
       setToken(storedToken);
-      // ✅ Pega o id real do token, não hardcoded
+      // Pega o id real do token, não hardcoded
       setUser(decodeToken(storedToken));
     }
   }, []);

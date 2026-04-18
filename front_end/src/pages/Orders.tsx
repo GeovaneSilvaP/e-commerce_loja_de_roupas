@@ -23,7 +23,7 @@ const statusConfig: Record<
     classes: "bg-amber-400/10 text-amber-400 border-amber-400/20",
     icon: <Clock size={12} />,
   },
-  // ✅ adicionado status paid
+  // adicionado status paid
   paid: {
     label: "Pago",
     classes: "bg-emerald-400/10 text-emerald-400 border-emerald-400/20",
@@ -43,8 +43,8 @@ const statusConfig: Record<
 
 export default function Orders() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true); // ✅ loading state
-  const [error, setError] = useState(false); // ✅ error state
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false); 
   const [cancellingId, setCancellingId] = useState<number | null>(null);
   const navigate = useNavigate();
 
@@ -52,7 +52,7 @@ export default function Orders() {
     api
       .get("/orders")
       .then((res) => setOrders(res.data))
-      .catch(() => setError(true)) // ✅ trata erro
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -63,7 +63,7 @@ export default function Orders() {
       icon: <Clock size={12} />,
     };
 
-  // ✅ Cancela pedido
+  // Cancela pedido
   const handleCancel = async (orderId: number) => {
     if (!window.confirm("Tem certeza que deseja cancelar este pedido?")) return;
 
@@ -83,7 +83,7 @@ export default function Orders() {
     }
   };
 
-  // ✅ Loading skeleton
+  // Loading skeleton
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0f0f13] px-10 py-12">
@@ -103,7 +103,7 @@ export default function Orders() {
     );
   }
 
-  // ✅ Tela de erro
+  // Tela de erro
   if (error) {
     return (
       <div className="min-h-screen bg-[#0f0f13] flex flex-col items-center justify-center gap-3 text-red-400">
@@ -215,7 +215,7 @@ export default function Orders() {
                   {order.items.length === 1 ? "item" : "itens"} neste pedido
                 </div>
 
-                {/* ✅ Botão cancelar — só aparece se puder cancelar */}
+                {/* Botão cancelar — só aparece se puder cancelar */}
                 {canCancel && (
                   <button
                     onClick={() => handleCancel(order.id)}

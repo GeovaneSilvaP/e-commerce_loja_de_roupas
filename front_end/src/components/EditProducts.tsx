@@ -12,7 +12,7 @@ const EditProducts = () => {
   const [price, setPrice] = useState<number | "">("");
   const [description, setDescription] = useState("");
   const [stock, setStock] = useState<number | "">("");
-  const [category, setCategory] = useState("outros"); // ✅
+  const [category, setCategory] = useState("outros");
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
@@ -28,7 +28,7 @@ const EditProducts = () => {
         setPrice(p.price);
         setDescription(p.description);
         setStock(p.stock);
-        setCategory(p.category || "outros"); // ✅
+        setCategory(p.category || "outros");
       })
       .catch(() => toast.error("Erro ao carregar produto"))
       .finally(() => setFetching(false));
@@ -42,7 +42,7 @@ const EditProducts = () => {
       formData.append("price", String(price));
       formData.append("description", description);
       formData.append("stock", String(stock));
-      formData.append("category", category); // ✅
+      formData.append("category", category);
       if (image) formData.append("image", image);
       await api.put(`/products/${id}`, formData);
       toast.success("Produto atualizado com sucesso 🚀");
@@ -155,7 +155,7 @@ const EditProducts = () => {
                 </div>
               </div>
 
-              {/* ✅ CATEGORIA */}
+              {/* CATEGORIA */}
               <div className="field" style={{ animationDelay: "90ms" }}>
                 <label className={labelClass}>Categoria</label>
                 <select

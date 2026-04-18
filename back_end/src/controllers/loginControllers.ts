@@ -125,7 +125,7 @@ export const loginAdmin = (req: Request, res: Response) => {
     return res.status(400).json({ message: "Email e senha obrigatórios" });
   }
 
-  // ✅ Busca na tabela admins, não users
+  // Busca na tabela admins, não users
   connection.query(
     "SELECT * FROM admins WHERE email = ?",
     [email],
@@ -144,7 +144,7 @@ export const loginAdmin = (req: Request, res: Response) => {
       }
 
       const token = jwt.sign(
-        { id: admin.id, isAdmin: true }, // ✅ isAdmin no token
+        { id: admin.id, isAdmin: true },
         JWT_SECRET,
         { expiresIn: "1d" },
       );

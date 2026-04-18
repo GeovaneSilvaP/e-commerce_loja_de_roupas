@@ -123,7 +123,7 @@ const Checkout = () => {
               </button>
             </div>
           ) : pixData ? (
-            // ✅ QR CODE PIX
+            // QR CODE PIX
             <div className="bg-[#18181f] border border-[#252530] rounded-2xl p-8 flex flex-col items-center gap-6">
               <div className="text-center">
                 <QrCode className="text-violet-400 mx-auto mb-2" size={32} />

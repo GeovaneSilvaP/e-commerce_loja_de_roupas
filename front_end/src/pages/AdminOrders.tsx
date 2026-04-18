@@ -97,7 +97,7 @@ export default function AdminOrders() {
       currency: "BRL",
     });
 
-  // ✅ Atualiza status do pedido
+  // Atualiza status do pedido
   const handleStatusChange = async (orderId: number, newStatus: string) => {
     try {
       setUpdatingId(orderId);
@@ -115,7 +115,7 @@ export default function AdminOrders() {
     }
   };
 
-  // ✅ Filtra por status e busca por usuário
+  // Filtra por status e busca por usuário
   const filteredOrders = orders.filter((order) => {
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
@@ -150,7 +150,7 @@ export default function AdminOrders() {
           </button>
         </div>
 
-        {/* ✅ FILTROS */}
+        {/* FILTROS */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
           {/* Busca por usuário */}
           <div className="relative flex-1">
@@ -199,7 +199,7 @@ export default function AdminOrders() {
           </div>
         )}
 
-        {/* ✅ ERRO */}
+        {/* ERRO */}
         {error && (
           <div className="flex flex-col items-center justify-center py-24 gap-3 text-red-400">
             <XCircle size={48} />
@@ -290,7 +290,7 @@ export default function AdminOrders() {
                   ))}
                 </div>
 
-                {/* ✅ FOOTER COM SELETOR DE STATUS */}
+                {/* FOOTER COM SELETOR DE STATUS */}
                 <div className="px-6 py-3 bg-[#111118] border-t border-[#252530] flex items-center justify-between text-xs text-zinc-600">
                   <span>
                     {order.items.length}{" "}
@@ -304,7 +304,7 @@ export default function AdminOrders() {
                     })}
                   </span>
 
-                  {/* ✅ Seletor de status */}
+                  {/* Seletor de status */}
                   <div className="relative">
                     <select
                       value={order.status}

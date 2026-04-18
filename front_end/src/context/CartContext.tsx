@@ -36,7 +36,7 @@ export const CartProvider = ({ children }: Props) => {
   ================================*/
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) return; // ✅ não busca se não estiver logado
+    if (!token) return; // não busca se não estiver logado
 
     const fetchCart = async () => {
       try {
@@ -67,7 +67,7 @@ export const CartProvider = ({ children }: Props) => {
   const addToCart = async (product: Products) => {
     const token = localStorage.getItem("token");
 
-    // ✅ Redireciona para login se não estiver autenticado
+    // Redireciona para login se não estiver autenticado
     if (!token) {
       navigate("/login");
       return;

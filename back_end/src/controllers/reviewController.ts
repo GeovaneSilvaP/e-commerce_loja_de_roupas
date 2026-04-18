@@ -23,14 +23,14 @@ export const createReview = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Avaliação deve ser entre 1 e 5" });
     }
 
-    // ✅ Verifica se já avaliou
+    // Verifica se já avaliou
     const existing = await query(
       "SELECT id FROM reviews WHERE product_id = ? AND user_id = ?",
       [product_id, user.id]
     );
 
     if (existing.length > 0) {
-      // ✅ Atualiza se já avaliou
+      // Atualiza se já avaliou
       await query(
         "UPDATE reviews SET rating = ? WHERE product_id = ? AND user_id = ?",
         [rating, product_id, user.id]

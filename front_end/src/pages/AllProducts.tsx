@@ -4,7 +4,7 @@ import { Products } from "../types/Products";
 import { useCart } from "../context/CartContext";
 import toast from "react-hot-toast";
 import { ShoppingCart, ArrowLeft, LayoutGrid, Shirt, User, Watch } from "lucide-react";
-import { useNavigate, useSearchParams } from "react-router-dom"; // ✅
+import { useNavigate, useSearchParams } from "react-router-dom"; 
 
 const categoryLabels: Record<string, string> = {
   "": "Todos os Produtos",
@@ -25,14 +25,14 @@ const AllProducts = () => {
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams(); // ✅
+  const [searchParams, setSearchParams] = useSearchParams(); 
 
-  const activeCategory = searchParams.get("category") || ""; // ✅ lê da URL
+  const activeCategory = searchParams.get("category") || "";
 
   useEffect(() => {
     setLoading(true);
 
-    // ✅ Busca por categoria ou todos
+    // Busca por categoria ou todos
     const url = activeCategory
       ? `/products/category/${activeCategory}`
       : "/products";
@@ -42,7 +42,7 @@ const AllProducts = () => {
       .then((res) => setProducts(res.data))
       .catch(() => toast.error("Erro ao carregar produtos"))
       .finally(() => setLoading(false));
-  }, [activeCategory]); // ✅ recarrega quando categoria muda
+  }, [activeCategory]); // recarrega quando categoria muda
 
   const handleAddToCart = (product: Products) => {
     addToCart(product);
@@ -70,7 +70,7 @@ const AllProducts = () => {
               Catálogo completo
             </p>
             <h1 className="text-4xl font-extrabold tracking-tight">
-              {/* ✅ Título muda com a categoria */}
+              {/* Título muda com a categoria */}
               {categoryLabels[activeCategory] ?? "Produtos"}{" "}
               {activeCategory && (
                 <span className="text-violet-400">
@@ -85,7 +85,7 @@ const AllProducts = () => {
           <span className="text-sm text-zinc-500">{products.length} itens</span>
         </div>
 
-        {/* ✅ FILTROS DE CATEGORIA */}
+        {/* FILTROS DE CATEGORIA */}
         <div className="flex gap-2 flex-wrap">
           {categories.map(({ icon, label, value }) => (
             <button

@@ -14,7 +14,7 @@ const Login = () => {
       const response = await api.post("/admin/login", { email, password });
 
       localStorage.setItem("token", response.data.token);
-      localStorage.setItem("role", "admin"); // ✅ estava faltando isso
+      localStorage.setItem("role", "admin");
 
       navigate("/admin");
     } catch {
@@ -53,7 +53,7 @@ const Login = () => {
             />
           </div>
 
-          {/* ✅ Exibe erro sem usar alert() */}
+          {/* Exibe erro sem usar alert() */}
           {error && (
             <p className="text-red-400 text-sm text-center">{error}</p>
           )}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api, getImageUrl } from "../services/api"; // ✅
+import { api, getImageUrl } from "../services/api";
 import { Products } from "../types/Products";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2, Package, Tag, Layers } from "lucide-react";
@@ -70,7 +70,7 @@ const ProductCard = () => {
                 className="h-44 bg-[#111118] flex items-center justify-center cursor-pointer group"
               >
                 <img
-                  src={getImageUrl(product.image_url!)} // ✅
+                  src={getImageUrl(product.image_url!)}
                   alt={product.name}
                   className="h-36 w-full object-contain transition-transform duration-300 group-hover:scale-105"
                 />

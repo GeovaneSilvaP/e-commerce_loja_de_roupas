@@ -16,7 +16,7 @@ type ReviewData = {
   one: number;
 };
 
-// ✅ Componente de estrelas
+// Componente de estrelas
 const StarRating = ({
   rating,
   onRate,
@@ -101,7 +101,7 @@ const ProductDetails = () => {
       await api.post(`/products/${id}/reviews`, { rating });
       toast.success("Avaliação enviada! ⭐");
 
-      // ✅ Atualiza as avaliações
+      // Atualiza as avaliações
       const res = await api.get(`/products/${id}/reviews`);
       setReviews(res.data);
     } catch {
@@ -147,7 +147,7 @@ const ProductDetails = () => {
               {product.name}
             </h2>
 
-            {/* ✅ CATEGORIA */}
+            {/* CATEGORIA */}
             <div className="flex items-center gap-1.5 mb-4">
               <Tag size={12} className="text-zinc-500" />
               <span className="text-xs text-zinc-500 uppercase tracking-widest">
@@ -155,7 +155,7 @@ const ProductDetails = () => {
               </span>
             </div>
 
-            {/* ✅ MÉDIA DE ESTRELAS */}
+            {/* MÉDIA DE ESTRELAS */}
             {reviews && reviews.total > 0 && (
               <div className="flex items-center gap-2 mb-4">
                 <StarRating
@@ -206,7 +206,7 @@ const ProductDetails = () => {
           </div>
         </div>
 
-        {/* ✅ SEÇÃO DE AVALIAÇÃO */}
+        {/* SEÇÃO DE AVALIAÇÃO */}
         <div className="bg-[#18181f] border border-[#252530] rounded-2xl p-6 mb-16">
           <h3 className="text-lg font-semibold mb-6">Avaliações</h3>
 
@@ -253,7 +253,7 @@ const ProductDetails = () => {
               })}
             </div>
 
-            {/* ✅ AVALIAR */}
+            {/* AVALIAR */}
             <div className="flex flex-col items-center justify-center gap-3 min-w-[160px]">
               <p className="text-sm text-zinc-400">
                 {token ? "Avalie este produto" : "Faça login para avaliar"}

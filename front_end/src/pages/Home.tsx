@@ -135,7 +135,7 @@ export default function Home() {
                 className="relative h-44 bg-[#111118] flex items-center justify-center cursor-pointer overflow-hidden"
               >
                 <img
-                  src={getImageUrl(product.image_url!)} // ✅
+                  src={getImageUrl(product.image_url!)} 
                   alt={product.name}
                   className="h-36 w-full object-contain transition-transform duration-300 group-hover:scale-105"
                 />
