@@ -20,13 +20,16 @@ export const createPixPayment = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Total inválido" });
     }
 
-    const result = await query("SELECT id, email FROM users WHERE id = ?", [user.id]);
+    const result = await query(
+      "SELECT id, email, cpf, asaas_customer_id FROM users WHERE id = ?",
+      [user.id]
+    );
 
     if (!result.length) {
       return res.status(404).json({ error: "Usuário não encontrado" });
     }
 
-    const email = result[0].email;
+    const { email, cpf, asaas_customer_id } = result[0];
 
     const API_KEY = process.env.ASAAS_API_KEY!;
     const BASE_URL = process.env.ASAAS_BASE_URL!;
@@ -34,19 +37,29 @@ export const createPixPayment = async (req: Request, res: Response) => {
     // 1. Verifica ou cria customer
     let customerId: string;
 
-    const existingCustomer = await query(
-      "SELECT asaas_customer_id FROM users WHERE id = ?",
-      [user.id]
-    );
-
-    if (existingCustomer[0]?.asaas_customer_id) {
-      customerId = existingCustomer[0].asaas_customer_id;
+    if (asaas_customer_id) {
+      customerId = asaas_customer_id;
     } else {
+      // CPF obrigatório para criar customer no Asaas
+      if (!cpf) {
+        return res.status(400).json({
+          error: "CPF obrigatório para realizar pagamento via Pix",
+          needsCpf: true,
+        });
+      }
+
+      const cpfCnpj = cpf.replace(/\D/g, "");
+
+      if (cpfCnpj.length !== 11) {
+        return res.status(400).json({ error: "CPF inválido" });
+      }
+
       const customerRes = await axios.post(
         `${BASE_URL}/customers`,
         {
-          name: email.split("@")[0], // Asaas exige name não vazio e minimamente válido
-          email: email,
+          name: email.split("@")[0],
+          email,
+          cpfCnpj,
         },
         {
           headers: {
@@ -64,10 +77,10 @@ export const createPixPayment = async (req: Request, res: Response) => {
       );
     }
 
-    // 2. Criar pagamento PIX — dueDate é obrigatório no Asaas
+    // 2. Criar pagamento PIX
     const dueDate = new Date();
     dueDate.setDate(dueDate.getDate() + 1);
-    const dueDateStr = dueDate.toISOString().split("T")[0]; // "YYYY-MM-DD"
+    const dueDateStr = dueDate.toISOString().split("T")[0];
 
     const paymentRes = await axios.post(
       `${BASE_URL}/payments`,
@@ -88,7 +101,7 @@ export const createPixPayment = async (req: Request, res: Response) => {
 
     const payment = paymentRes.data;
 
-    // 3. Buscar QR Code — endpoint separado no Asaas
+    // 3. Buscar QR Code
     const pixRes = await axios.get(
       `${BASE_URL}/payments/${payment.id}/pixQrCode`,
       {
@@ -111,8 +124,8 @@ export const createPixPayment = async (req: Request, res: Response) => {
     return res.json({
       id: payment.id,
       status: payment.status,
-      qr_code: pixData.payload,           // texto "copia e cola"
-      qr_code_base64: pixData.encodedImage, // imagem base64
+      qr_code: pixData.payload,
+      qr_code_base64: pixData.encodedImage,
     });
 
   } catch (error: any) {
@@ -122,9 +135,10 @@ export const createPixPayment = async (req: Request, res: Response) => {
     console.error("MESSAGE:", error.message);
 
     return res.status(500).json({
-      error: error.response?.data?.errors?.[0]?.description
-        || error.response?.data?.error
-        || error.message,
+      error:
+        error.response?.data?.errors?.[0]?.description ||
+        error.response?.data?.error ||
+        error.message,
     });
   }
 };
