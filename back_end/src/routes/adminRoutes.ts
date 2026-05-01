@@ -24,6 +24,6 @@ router.patch(
   adminMiddleware,
   updateOderStatus,
 );
-router.delete("/orders/:id", authMiddleware, adminMiddleware, deleteOrderAdmin);
+router.delete("/admin/orders/:id", authMiddleware, adminMiddleware, deleteOrderAdmin);
 
 export default router;
