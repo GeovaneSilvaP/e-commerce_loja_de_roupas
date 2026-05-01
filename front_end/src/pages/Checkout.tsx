@@ -22,7 +22,10 @@ const Checkout = () => {
     qr_code_base64: string;
     id: number;
   } | null>(null);
-  const [copied, setCopied] = useState<boolean>(false);
+  const [copied, setCopied] = useState(false);
+  const [needsCpf, setNeedsCpf] = useState(false);
+  const [cpf, setCpf] = useState("");
+  const [savingCpf, setSavingCpf] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,10 +43,7 @@ const Checkout = () => {
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
   const formatPrice = (value: number) =>
-    value.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
+    value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const handleCopyPix = () => {
     if (pixData?.qr_code) {
@@ -73,26 +73,58 @@ const Checkout = () => {
 
       setPixData(pixResponse.data);
 
-      await api.post("/orders", {
-        payment_method: "pix",
-      });
+      await api.post("/orders", { payment_method: "pix" });
 
       setCart([]);
-
       toast.success("Pedido criado! Faça o pagamento via Pix.");
     } catch (error: any) {
-      console.error(error);
+      // Backend sinalizou que falta CPF
+      if (error?.response?.data?.needsCpf) {
+        setNeedsCpf(true);
+        return;
+      }
       const message =
         error?.response?.data?.error || "Erro ao finalizar compra";
-      toast.error(message);
+      toast.error(
+        typeof message === "string" ? message : "Erro ao finalizar compra",
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  const handleSaveCpf = async () => {
+    const cleaned = cpf.replace(/\D/g, "");
+    if (cleaned.length !== 11) {
+      toast.error("CPF inválido");
+      return;
+    }
+
+    try {
+      setSavingCpf(true);
+      await api.patch("/users/cpf", { cpf: cleaned });
+      toast.success("CPF salvo!");
+      setNeedsCpf(false);
+      // Tenta finalizar automaticamente após salvar
+      await handleCheckout();
+    } catch {
+      toast.error("Erro ao salvar CPF");
+    } finally {
+      setSavingCpf(false);
+    }
+  };
+
+  const formatCpf = (value: string) => {
+    return value
+      .replace(/\D/g, "")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
+      .slice(0, 14);
+  };
+
   return (
     <div className="bg-[#0f0f13] min-h-screen text-white px-4 py-10">
-      {/* VOLTAR */}
       <div className="max-w-6xl mx-auto mb-6">
         <button
           onClick={() => navigate("/")}
@@ -106,7 +138,6 @@ const Checkout = () => {
       </div>
 
       <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-8">
-        {/* PRODUTOS */}
         <div className="lg:col-span-2 space-y-4">
           <h1 className="text-2xl font-extrabold flex items-center gap-2 mb-4">
             <ShoppingBag className="text-violet-400" />
@@ -124,7 +155,6 @@ const Checkout = () => {
               </button>
             </div>
           ) : pixData ? (
-            // QR CODE PIX
             <div className="bg-[#18181f] border border-[#252530] rounded-2xl p-8 flex flex-col items-center gap-6">
               <div className="text-center">
                 <QrCode className="text-violet-400 mx-auto mb-2" size={32} />
@@ -134,7 +164,6 @@ const Checkout = () => {
                 </p>
               </div>
 
-              {/* QR CODE IMAGE */}
               <div className="bg-white p-4 rounded-2xl">
                 <img
                   src={`data:image/png;base64,${pixData.qr_code_base64}`}
@@ -143,7 +172,6 @@ const Checkout = () => {
                 />
               </div>
 
-              {/* COPIA E COLA */}
               <div className="w-full">
                 <p className="text-xs text-zinc-500 mb-2 text-center">
                   Pix Copia e Cola
@@ -197,7 +225,6 @@ const Checkout = () => {
           )}
         </div>
 
-        {/* RESUMO */}
         {!pixData && (
           <div className="bg-[#18181f] border border-[#252530] p-6 rounded-2xl h-fit shadow-lg">
             <h2 className="text-lg font-semibold mb-4">Resumo do pedido</h2>
@@ -217,10 +244,8 @@ const Checkout = () => {
               <span className="text-violet-400">{formatPrice(total)}</span>
             </div>
 
-            {/* PAGAMENTO */}
             <div className="mt-6">
               <h3 className="text-sm text-zinc-400 mb-3">Forma de pagamento</h3>
-
               <div className="space-y-2">
                 {[
                   { id: "pix", label: "Pix", icon: <QrCode size={14} /> },
@@ -259,13 +284,41 @@ const Checkout = () => {
               </div>
             </div>
 
-            <button
-              onClick={handleCheckout}
-              disabled={loading || cart.length === 0}
-              className="w-full mt-6 bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-semibold transition disabled:opacity-50"
-            >
-              {loading ? "Processando..." : "Finalizar compra"}
-            </button>
+            {/* CAMPO CPF — aparece quando necessário */}
+            {needsCpf && (
+              <div className="mt-5 space-y-3">
+                <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                  <p className="text-xs text-yellow-400">
+                    Informe seu CPF para continuar com o pagamento via Pix.
+                  </p>
+                </div>
+                <input
+                  type="text"
+                  placeholder="000.000.000-00"
+                  value={cpf}
+                  onChange={(e) => setCpf(formatCpf(e.target.value))}
+                  maxLength={14}
+                  className="w-full bg-[#111118] border border-[#252530] focus:border-violet-500 outline-none rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-zinc-600 transition"
+                />
+                <button
+                  onClick={handleSaveCpf}
+                  disabled={savingCpf || cpf.replace(/\D/g, "").length !== 11}
+                  className="w-full bg-violet-500 hover:bg-violet-600 disabled:opacity-50 py-2.5 rounded-xl text-sm font-semibold transition"
+                >
+                  {savingCpf ? "Salvando..." : "Salvar CPF e continuar"}
+                </button>
+              </div>
+            )}
+
+            {!needsCpf && (
+              <button
+                onClick={handleCheckout}
+                disabled={loading || cart.length === 0}
+                className="w-full mt-6 bg-violet-500 hover:bg-violet-600 text-white py-3 rounded-xl font-semibold transition disabled:opacity-50"
+              >
+                {loading ? "Processando..." : "Finalizar compra"}
+              </button>
+            )}
           </div>
         )}
       </div>
