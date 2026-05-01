@@ -11,6 +11,7 @@ import {
   User,
   Search,
   ChevronDown,
+  Trash2,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -74,6 +75,8 @@ export default function AdminOrders() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -97,16 +100,13 @@ export default function AdminOrders() {
       currency: "BRL",
     });
 
-  // Atualiza status do pedido
   const handleStatusChange = async (orderId: number, newStatus: string) => {
     try {
       setUpdatingId(orderId);
       await api.patch(`/admin/orders/${orderId}/status`, { status: newStatus });
-
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)),
       );
-
       toast.success("Status atualizado!");
     } catch {
       toast.error("Erro ao atualizar status");
@@ -115,7 +115,20 @@ export default function AdminOrders() {
     }
   };
 
-  // Filtra por status e busca por usuário
+  const handleDelete = async (orderId: number) => {
+    try {
+      setDeletingId(orderId);
+      await api.delete(`/admin/orders/${orderId}`);
+      setOrders((prev) => prev.filter((o) => o.id !== orderId));
+      toast.success("Pedido excluído!");
+    } catch {
+      toast.error("Erro ao excluir pedido");
+    } finally {
+      setDeletingId(null);
+      setConfirmDeleteId(null);
+    }
+  };
+
   const filteredOrders = orders.filter((order) => {
     const matchesStatus =
       statusFilter === "all" || order.status === statusFilter;
@@ -126,12 +139,12 @@ export default function AdminOrders() {
   });
 
   return (
-    <div className="min-h-screen bg-[#0f0f13] text-white px-6 py-10">
+    <div className="min-h-screen bg-[#0f0f13] text-white px-4 sm:px-6 py-8 sm:py-10">
       <div className="max-w-6xl mx-auto">
         {/* HEADER */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-start sm:items-center justify-between mb-8 gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
               Pedidos <span className="text-violet-400">dos Usuários</span>
             </h1>
             <p className="text-zinc-400 text-sm mt-1">
@@ -143,16 +156,16 @@ export default function AdminOrders() {
 
           <button
             onClick={() => navigate("/admin")}
-            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm transition-all duration-200 active:scale-95"
+            className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl text-sm transition-all duration-200 active:scale-95 shrink-0"
           >
             <ArrowLeft size={16} />
-            Voltar ao painel
+            <span className="hidden sm:inline">Voltar ao painel</span>
+            <span className="sm:hidden">Voltar</span>
           </button>
         </div>
 
         {/* FILTROS */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          {/* Busca por usuário */}
           <div className="relative flex-1">
             <Search
               size={15}
@@ -167,12 +180,11 @@ export default function AdminOrders() {
             />
           </div>
 
-          {/* Filtro por status */}
           <div className="relative">
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none bg-[#18181f] border border-[#252530] focus:border-violet-500/60 outline-none px-4 pr-9 py-2.5 rounded-xl text-sm text-white transition cursor-pointer"
+              className="w-full sm:w-auto appearance-none bg-[#18181f] border border-[#252530] focus:border-violet-500/60 outline-none px-4 pr-9 py-2.5 rounded-xl text-sm text-white transition cursor-pointer"
             >
               {statusOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -227,6 +239,8 @@ export default function AdminOrders() {
         <div className="flex flex-col gap-6">
           {filteredOrders.map((order) => {
             const status = getStatus(order.status);
+            const isConfirming = confirmDeleteId === order.id;
+            const isDeleting = deletingId === order.id;
 
             return (
               <div
@@ -234,13 +248,12 @@ export default function AdminOrders() {
                 className="bg-[#18181f] border border-[#252530] rounded-2xl overflow-hidden hover:border-[#3d3d55] hover:shadow-2xl transition-all duration-300"
               >
                 {/* ORDER HEADER */}
-                <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-[#252530]">
-                  <div className="flex items-center gap-3">
-                    <Hash size={14} className="text-zinc-600" />
+                <div className="flex flex-wrap items-center justify-between gap-3 px-4 sm:px-6 py-4 border-b border-[#252530]">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <Hash size={14} className="text-zinc-600 shrink-0" />
                     <span className="text-white font-bold">
                       Pedido {order.id}
                     </span>
-
                     <span
                       className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border ${status.classes}`}
                     >
@@ -249,13 +262,20 @@ export default function AdminOrders() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 flex-wrap">
                     {/* USER INFO */}
                     <div className="flex items-center gap-2 text-zinc-400 text-xs">
-                      <User size={13} className="text-zinc-600" />
-                      <span>{order.user_name}</span>
-                      <span className="text-zinc-600">•</span>
-                      <span className="text-zinc-500">{order.user_email}</span>
+                      <User size={13} className="text-zinc-600 shrink-0" />
+                      <span className="hidden sm:inline">
+                        {order.user_name}
+                      </span>
+                      <span className="sm:hidden truncate max-w-[100px]">
+                        {order.user_name}
+                      </span>
+                      <span className="text-zinc-600 hidden sm:inline">•</span>
+                      <span className="text-zinc-500 hidden sm:inline">
+                        {order.user_email}
+                      </span>
                     </div>
 
                     <span className="text-white font-bold text-sm">
@@ -265,10 +285,10 @@ export default function AdminOrders() {
                 </div>
 
                 {/* ITEMS */}
-                <div className="px-6 py-4 flex flex-col gap-4">
+                <div className="px-4 sm:px-6 py-4 flex flex-col gap-4">
                   {order.items.map((item, i) => (
-                    <div key={i} className="flex items-center gap-4">
-                      <div className="w-14 h-14 bg-[#111118] rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+                    <div key={i} className="flex items-center gap-3 sm:gap-4">
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 bg-[#111118] rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                         <img
                           src={getImageUrl(item.image_url)}
                           alt={item.name}
@@ -290,8 +310,8 @@ export default function AdminOrders() {
                   ))}
                 </div>
 
-                {/* FOOTER COM SELETOR DE STATUS */}
-                <div className="px-6 py-3 bg-[#111118] border-t border-[#252530] flex items-center justify-between text-xs text-zinc-600">
+                {/* FOOTER */}
+                <div className="px-4 sm:px-6 py-3 bg-[#111118] border-t border-[#252530] flex items-center justify-between gap-3 text-xs text-zinc-600 flex-wrap">
                   <span>
                     {order.items.length}{" "}
                     {order.items.length === 1 ? "item" : "itens"} •{" "}
@@ -304,28 +324,61 @@ export default function AdminOrders() {
                     })}
                   </span>
 
-                  {/* Seletor de status */}
-                  <div className="relative">
-                    <select
-                      value={order.status}
-                      disabled={updatingId === order.id}
-                      onChange={(e) =>
-                        handleStatusChange(order.id, e.target.value)
-                      }
-                      className="appearance-none bg-[#18181f] border border-[#252530] hover:border-violet-500/40 outline-none px-3 pr-7 py-1.5 rounded-lg text-xs text-white transition cursor-pointer disabled:opacity-50"
-                    >
-                      {statusOptions
-                        .filter((o) => o.value !== "all")
-                        .map((opt) => (
-                          <option key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </option>
-                        ))}
-                    </select>
-                    <ChevronDown
-                      size={11}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
-                    />
+                  <div className="flex items-center gap-2">
+                    {/* Confirmação de exclusão inline */}
+                    {isConfirming ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-red-400 text-xs">
+                          Confirmar exclusão?
+                        </span>
+                        <button
+                          onClick={() => handleDelete(order.id)}
+                          disabled={isDeleting}
+                          className="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-semibold transition disabled:opacity-50"
+                        >
+                          {isDeleting ? "Excluindo..." : "Sim, excluir"}
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          disabled={isDeleting}
+                          className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 text-xs transition"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmDeleteId(order.id)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 text-red-400 text-xs font-medium transition"
+                      >
+                        <Trash2 size={12} />
+                        Excluir
+                      </button>
+                    )}
+
+                    {/* Seletor de status */}
+                    <div className="relative">
+                      <select
+                        value={order.status}
+                        disabled={updatingId === order.id}
+                        onChange={(e) =>
+                          handleStatusChange(order.id, e.target.value)
+                        }
+                        className="appearance-none bg-[#18181f] border border-[#252530] hover:border-violet-500/40 outline-none px-3 pr-7 py-1.5 rounded-lg text-xs text-white transition cursor-pointer disabled:opacity-50"
+                      >
+                        {statusOptions
+                          .filter((o) => o.value !== "all")
+                          .map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                      </select>
+                      <ChevronDown
+                        size={11}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
