@@ -153,3 +153,27 @@ export const updateOderStatus = async (req: Request, res: Response) => {
     return res.status(500).json({ error: error.message });
   }
 };
+
+/* ==============================
+   DELETE ORDER (ADMIN)
+================================*/
+export const deleteOrderAdmin = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const orders: any[] = await query("SELECT * FROM orders WHERE id = ?", [
+      id,
+    ]);
+
+    if (!orders.length) {
+      return res.status(400).json({ message: "Pedido não encontrado" });
+    }
+
+    await query("DELETE FROM order_items WHERE order_id = ?", [id]);
+    await query("DELETE FROM orders WHERE id = ?", [id]);
+
+    return res.json({ message: "Pedido excluído com sucesso" });
+  } catch (error: any) {
+    return res.status(500).json({ error: error.message });
+  }
+};
