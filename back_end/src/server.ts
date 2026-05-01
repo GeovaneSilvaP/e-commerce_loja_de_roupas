@@ -40,7 +40,7 @@ app.use(pixRoutes);
 app.use(reviewRoutes);
 
 app.get("/", (req, res) => {
-  res.send("API funcionando 🚀");
+  res.send("API funcionando");
 });
 
 /**
