@@ -13,7 +13,6 @@ import { api, getImageUrl } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
-
 const Checkout = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("pix");
@@ -64,23 +63,25 @@ const Checkout = () => {
     try {
       setLoading(true);
 
-      if (paymentMethod === "pix") {
-        const pixResponse = await api.post("/pix", {
-          total: Number(total.toFixed(2)),
-        });
+      const pixResponse = await api.post("/pix", {
+        total: Number(total.toFixed(2)),
+      });
 
-        setPixData(pixResponse.data);
-
-        // Cria o pedido no banco
-        await api.post("/orders", {
-          payment_method: "pix",
-        });
-        setCart([]);
-
-        toast.success("Pedido realizado com sucesso!");
-        setTimeout(() => navigate("/meus-pedidos"), 1000);
+      if (!pixResponse.data?.qr_code_base64) {
+        throw new Error("Erro ao gerar PIX");
       }
+
+      setPixData(pixResponse.data);
+
+      await api.post("/orders", {
+        payment_method: "pix",
+      });
+
+      setCart([]);
+
+      toast.success("Pedido criado! Faça o pagamento via Pix.");
     } catch (error: any) {
+      console.error(error);
       const message =
         error?.response?.data?.error || "Erro ao finalizar compra";
       toast.error(message);
