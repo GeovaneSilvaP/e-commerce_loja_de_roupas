@@ -1,11 +1,6 @@
 import "dotenv/config";
 
-import express, {
-  Application,
-  Request,
-  Response,
-  NextFunction,
-} from "express";
+import express, { Application, Request, Response, NextFunction } from "express";
 import cors from "cors";
 import path from "path";
 
@@ -44,6 +39,10 @@ app.use(userRoutes);
 app.use(pixRoutes);
 app.use(reviewRoutes);
 
+app.get("/", (req, res) => {
+  res.send("API funcionando 🚀");
+});
+
 /**
  * Servir arquivos estáticos
  *
@@ -66,7 +65,7 @@ app.use(
     err: unknown,
     _req: Request,
     res: Response,
-    _next: NextFunction
+    _next: NextFunction,
   ): Response => {
     if (err instanceof Error) {
       console.error("ERRO GLOBAL:", {
@@ -84,7 +83,7 @@ app.use(
     return res.status(500).json({
       message: "Erro interno do servidor",
     });
-  }
+  },
 );
 
 /**
